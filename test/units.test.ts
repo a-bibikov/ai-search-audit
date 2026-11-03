@@ -42,3 +42,20 @@ describe("pickPages", () => {
     assert.deepEqual(pickPages(`${o}/`, [o, `${o}/cv`, `${o}/cv/`], 5), [`${o}/`, `${o}/cv`]);
   });
 });
+
+describe("pickPages on sites with city copies", () => {
+  it("takes each template once before the copies under other prefixes", () => {
+    const o = "https://shop.test";
+    const cities = ["abakan", "abinsk", "achinsk"];
+    const leaves = ["9-may", "calendars/foldout", "photobooks/3d"];
+    const urls = [...cities.flatMap((c) => leaves.map((l) => `${o}/${c}/${l}`)), `${o}/about`, `${o}/blog/post`];
+    const picked = pickPages(`${o}/`, urls, 6);
+    assert.deepEqual(picked, [`${o}/`, `${o}/abakan/9-may`, `${o}/abakan/calendars/foldout`, `${o}/abakan/photobooks/3d`, `${o}/about`, `${o}/blog/post`]);
+  });
+
+  it("fills the rest with copies when there is room", () => {
+    const o = "https://shop.test";
+    const picked = pickPages(`${o}/`, [`${o}/a/x`, `${o}/b/x`, `${o}/c/x`], 10);
+    assert.deepEqual(picked, [`${o}/`, `${o}/a/x`, `${o}/b/x`, `${o}/c/x`]);
+  });
+});

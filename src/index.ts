@@ -18,7 +18,8 @@ export interface Report extends Score {
   checkedAt: string;
   pages: string[];
   findings: Finding[];
-  rules: { id: string; group: Group; level: Level; title: string; fix: string }[];
+  /** `skipped` is the reason a check did not run on this site. */
+  rules: { id: string; group: Group; level: Level; title: string; fix: string; skipped?: string }[];
 }
 
 export async function audit(target: string, opts: { base?: string; config?: Partial<Config>; urls?: string[]; log?: CrawlOptions["log"] } = {}): Promise<Report> {
@@ -26,7 +27,9 @@ export async function audit(target: string, opts: { base?: string; config?: Part
   const t = messages(config.lang);
   const site = await crawl(target, opts.base, { maxPages: config.maxPages, urls: opts.urls, log: opts.log });
   const active = rules.filter((r) => !config.disable.includes(r.id));
-  const findings = active.flatMap((r) => r.run(site, config, t.m));
+  // A check that cannot run here is reported as «not checked» with the reason, never as passed.
+  const skipped = new Map(active.map((r) => [r.id, r.applies?.(site, t.m) ?? null]));
+  const findings = active.filter((r) => !skipped.get(r.id)).flatMap((r) => r.run(site, config, t.m));
   return {
     site: site.base,
     lang: config.lang,
@@ -34,6 +37,6 @@ export async function audit(target: string, opts: { base?: string; config?: Part
     pages: site.pages.map((p) => p.fetched.publicUrl),
     ...scoreOf(findings),
     findings,
-    rules: active.map(({ id, group, level }) => ({ id, group, level, ...t.rules[id] })),
+    rules: active.map(({ id, group, level }) => ({ id, group, level, ...t.rules[id], ...(skipped.get(id) ? { skipped: skipped.get(id)! } : {}) })),
   };
 }

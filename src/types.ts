@@ -77,7 +77,9 @@ export interface Site {
   robots: { fetched: Fetched; parsed: Robots } | null;
   sitemap: Sitemap | null;
   pages: Page[];
+  /** /llms.txt when it answered 200, else null; llmsAttempt keeps the raw answer for the message (404, 403…). */
   llms: Fetched | null;
+  llmsAttempt: Fetched;
   llmsFull: Fetched | null;
   feeds: Fetched[];
   /** Same page fetched with each AI user agent (rule A-3). */
@@ -103,5 +105,10 @@ export interface Rule {
   id: RuleId;
   group: Group;
   level: Level;
+  /**
+   * Why the check cannot run on this site («no articles among the audited pages», «no llms.txt»), or null when it can.
+   * A check that does not apply is shown as «not checked» instead of a green tick.
+   */
+  applies?(site: Site, t: Messages["m"]): string | null;
   run(site: Site, config: Config, t: Messages["m"]): Finding[];
 }

@@ -39,6 +39,10 @@ export function toMarkdown(r: Report): string {
     if (!list.length) continue;
     lines.push(`**${g}. ${t.groups[g]}**`, "");
     for (const rule of list) {
+      if (rule.skipped) {
+        lines.push(`- – ${rule.id} ${rule.title} — ${t.notChecked}: ${rule.skipped}`);
+        continue;
+      }
       const found = byRule.get(rule.id) ?? [];
       const n = (level: Level) => found.filter((f) => f.level === level).length;
       const icon = found.length ? ICON[found.reduce<Level>((w, f) => (ORDER[f.level] < ORDER[w] ? f.level : w), "info")] : "✓";

@@ -1,6 +1,6 @@
 import { countWords } from "../html.ts";
 import { markdownLinks } from "../sitemap.ts";
-import type { Rule } from "../types.ts";
+import type { Rule, Site } from "../types.ts";
 import { articleNode, finder, isArticle, quote, str } from "./util.ts";
 
 const FILLER = /^(in this (article|post|guide)|this (article|post) (will|is about)|today we|welcome to|в этой статье|в этом посте|сегодня мы|сегодня расскажу|давайте разберёмся)/i;
@@ -18,11 +18,17 @@ const TO_AI = [
 
 const datePart = (s: string) => s.slice(0, 10);
 
+/** llms.txt that answered 200 with text, not an HTML page served at that address (a common SPA fallback). */
+const llmsReadable = (site: Site) => Boolean(site.llms && !/^\s*<(!doctype|html)/i.test(site.llms.body));
+
 export const contentRules: Rule[] = [
   {
     id: "D-2",
     group: "D",
     level: "warn",
+    applies(site, t) {
+      return site.pages.some(isArticle) ? null : t.skipNoArticles;
+    },
     run(site, _config, t) {
       const { out, add } = finder(this);
       for (const page of site.pages) {
@@ -41,7 +47,8 @@ export const contentRules: Rule[] = [
     run(site, _config, t) {
       const { out, add } = finder(this);
       if (!site.llms) {
-        add("site", t.notFound("/llms.txt"));
+        const a = site.llmsAttempt;
+        add("site", a.status === 404 || a.status === 410 ? t.notFound("/llms.txt") : t.answers("/llms.txt", a.error ?? `HTTP ${a.status}`));
         return out;
       }
       const body = site.llms.body;
@@ -58,6 +65,9 @@ export const contentRules: Rule[] = [
     id: "E-2",
     group: "E",
     level: "error",
+    applies(site, t) {
+      return llmsReadable(site) ? null : t.skipNoLlms;
+    },
     run(site, _config, t) {
       const { out, add } = finder(this);
       const inSitemap = new Set((site.sitemap?.urls ?? []).map((u) => u.loc.replace(/\/$/, "")));
@@ -72,6 +82,11 @@ export const contentRules: Rule[] = [
     id: "E-3",
     group: "E",
     level: "info",
+    applies(site, t) {
+      if (!llmsReadable(site)) return t.skipNoLlms;
+      const langs = new Set(site.pages.flatMap((p) => p.hreflang.map((h) => h.lang)).filter((l) => l !== "x-default"));
+      return langs.size > 1 ? null : t.skipOneLanguage;
+    },
     run(site, _config, t) {
       const { out, add } = finder(this);
       const langs = new Set(site.pages.flatMap((p) => p.hreflang.map((h) => h.lang)).filter((l) => l !== "x-default"));
@@ -83,6 +98,9 @@ export const contentRules: Rule[] = [
     id: "E-5",
     group: "E",
     level: "info",
+    applies(site, t) {
+      return llmsReadable(site) ? null : t.skipNoLlms;
+    },
     run(site, _config, t) {
       const { out, add } = finder(this);
       if (!site.llmsFull) {
@@ -102,6 +120,10 @@ export const contentRules: Rule[] = [
     id: "F-1",
     group: "F",
     level: "warn",
+    applies(site, t) {
+      if (!site.sitemap) return t.skipNoSitemap;
+      return site.pages.some(isArticle) ? null : t.skipNoArticles;
+    },
     run(site, _config, t) {
       const { out, add } = finder(this);
       if (!site.sitemap) return out;

@@ -18,29 +18,46 @@ const origin = (url: string) => new URL(url).origin;
 /**
  * Picks pages so that every template is seen: URLs grouped by their path with the last segment masked
  * (/blog/a and /blog/b are one group), then taken round-robin, home page first.
+ * Sites that repeat one page under many prefixes (/moscow/prices, /kazan/prices…) would fill the sample with copies,
+ * so a page whose path after the first segment was already picked waits until every other page had its turn.
+ * Language prefixes (/ru/, /en-us/) are not treated as such copies: other languages are worth auditing.
  */
 export function pickPages(home: string, urls: string[], max: number): string[] {
   // https://site.com and https://site.com/ are the same page: compare without the trailing slash.
   const norm = (u: string) => u.replace(/\/$/, "");
+  const segments = (u: string) => new URL(u).pathname.split("/").filter(Boolean);
+  const tailOf = (u: string) => {
+    const segs = segments(u);
+    return segs.length >= 2 && !/^[a-z]{2}(-[a-z]{2,4})?$/i.test(segs[0]!) ? segs.slice(1).join("/") : null;
+  };
   const seen = new Set([norm(home)]);
   const groups = new Map<string, string[]>();
   for (const url of urls) {
     if (seen.has(norm(url))) continue;
     seen.add(norm(url));
-    const path = new URL(url).pathname.replace(/\/$/, "");
-    const segs = path.split("/").filter(Boolean);
+    const segs = segments(url);
     const key = segs.length <= 1 ? `/${segs.join("/")}` : `/${segs.slice(0, -1).join("/")}/*`;
     if (!groups.has(key)) groups.set(key, []);
     groups.get(key)!.push(url);
   }
   const picked = [home];
+  const tails = new Set<string>();
+  const later: string[] = [];
   const lists = [...groups.values()];
   for (let round = 0; picked.length < max && lists.some((l) => l.length > round); round++) {
     for (const list of lists) {
       const url = list[round];
-      if (url && !picked.includes(url) && picked.length < max) picked.push(url);
+      if (!url || picked.length >= max) continue;
+      const tail = tailOf(url);
+      if (tail && tails.has(tail)) {
+        later.push(url);
+        continue;
+      }
+      if (tail) tails.add(tail);
+      picked.push(url);
     }
   }
+  for (const url of later) if (picked.length < max) picked.push(url);
   return picked;
 }
 
@@ -106,7 +123,7 @@ export async function crawl(targetInput: string, baseInput: string | undefined, 
     undeclaredFeed = probes.find((f) => f.status === 200 && /<(rss|feed)\b/i.test(f.body.slice(0, 2000)))?.publicUrl ?? null;
   }
 
-  return { target, base, robots, sitemap, pages, llms: llms.status === 200 ? llms : null, llmsFull: llmsFull.status === 200 ? llmsFull : null, feeds, asAgents, llmsLinks, undeclaredFeed };
+  return { target, base, robots, sitemap, pages, llms: llms.status === 200 ? llms : null, llmsAttempt: llms, llmsFull: llmsFull.status === 200 ? llmsFull : null, feeds, asAgents, llmsLinks, undeclaredFeed };
 }
 
 const p0 = (pages: Page[], base: string) => pages[0]?.fetched.publicUrl ?? base;

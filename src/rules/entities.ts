@@ -1,6 +1,6 @@
 import { types } from "../html.ts";
 import type { JsonLdNode, Rule, Site } from "../types.ts";
-import { ENTITY_TYPES, articleNode, finder, isA, str } from "./util.ts";
+import { ENTITY_TYPES, articleNode, finder, isA, isArticle, str } from "./util.ts";
 
 const idOf = (v: unknown) => (v && typeof v === "object" ? str((v as JsonLdNode)["@id"]) : "");
 const authors = (node: JsonLdNode) => {
@@ -44,6 +44,9 @@ export const entityRules: Rule[] = [
     id: "C-2",
     group: "C",
     level: "warn",
+    applies(site, t) {
+      return site.pages.some(isArticle) ? null : t.skipNoArticles;
+    },
     run(site, _config, t) {
       const { out, add } = finder(this);
       const ids = new Set(definitions(site).map(({ n }) => str(n["@id"])).filter(Boolean));
@@ -63,6 +66,9 @@ export const entityRules: Rule[] = [
     id: "C-4",
     group: "C",
     level: "error",
+    applies(site, t) {
+      return site.pages.some(isArticle) ? null : t.skipNoArticles;
+    },
     run(site, _config, t) {
       const { out, add } = finder(this);
       for (const page of site.pages) {
