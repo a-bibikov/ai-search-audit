@@ -28,6 +28,20 @@ describe("score", () => {
     assert.equal(s.grade, "B");
     assert.deepEqual(s.counts, { error: 2, warn: 2, info: 1 });
   });
+
+  it("charges more for a warning on most pages", () => {
+    const f = (rule: string, where: string) => ({ rule, level: "warn" as const, where, message: "" });
+    assert.equal(scoreOf([f("C-6", "/a")], { pages: 10 }).score, 95, "one page of ten: an ordinary warning");
+    assert.equal(scoreOf([1, 2, 3, 4, 5].map((i) => f("C-6", `/${i}`)), { pages: 10 }).score, 90, "half the pages: site-wide");
+    assert.equal(scoreOf([{ rule: "A-2", level: "info", where: "site", message: "" }], { pages: 10 }).score, 100, "notes cost nothing");
+    assert.equal(scoreOf([f("E-1", "site")], { pages: 10 }).score, 95, "a site-level warning is not «on most pages»");
+  });
+
+  it("caps an A at B when fewer than two thirds of the checks ran", () => {
+    assert.equal(scoreOf([], { checked: 13, total: 20 }).grade, "B");
+    assert.equal(scoreOf([], { checked: 13, total: 20 }).capped, true);
+    assert.equal(scoreOf([], { checked: 14, total: 20 }).grade, "A");
+  });
 });
 
 describe("pickPages", () => {

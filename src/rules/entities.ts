@@ -27,6 +27,9 @@ export const entityRules: Rule[] = [
         add("site", t.noEntity);
         return out;
       }
+      // The home page is where answer engines look first for who runs the site.
+      const home = site.pages.find((p) => p.fetched.publicUrl.replace(/\/$/, "") === site.base);
+      if (home && !defined.some(({ page }) => page === home)) add(home.fetched.publicUrl, t.entityNotOnHome(defined[0]!.page.fetched.publicUrl), "warn");
       const seen = new Set<string>();
       for (const { n, page } of defined) {
         const key = str(n["@id"]) || str(n.url) || str(n.name);

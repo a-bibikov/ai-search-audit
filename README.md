@@ -53,7 +53,7 @@ Most GEO / AI SEO checkers score a checklist: "is there an FAQ?", "are AI bots n
 - **D-2** Articles give the answer in the first two paragraphs
 
 **E. Machine-readable versions**
-- **E-1** `llms.txt` exists and follows the standard
+- **E-1** If there is an `llms.txt`, it follows the standard. It is optional: AI search engines rarely read it today, coding agents and docs tools do
 - **E-2** Every link in `llms.txt` works and is a published page
 - **E-3** Each language has its own `llms.txt`
 - **E-5** `llms-full.txt` carries the full text
@@ -68,9 +68,9 @@ Gaps in the numbering are taken by the checks on the [roadmap](#roadmap).
 
 Levels: `error` — AI search cannot read the page or reads it wrong; `warn` — lowers the chance of a citation; `info` — a recommendation.
 
-The report lists the findings with fixes first, then ends with a checklist of every check by group: ✓ OK, ✖ error, ⚠ warning, ℹ note, – not checked. A check that cannot run on a site — articles on a site without articles, `llms.txt` links when there is no `llms.txt` — is marked «not checked» with the reason, never as passed.
+The report opens with what to do first — the three changes worth the most, in plain words and with how many pages they touch — then lists the findings with fixes, and ends with a checklist of every check by group: ✓ OK, ✖ error, ⚠ warning, ℹ note, – not checked. A check that cannot run on a site — articles on a site without articles, `llms.txt` links when there is no `llms.txt` — is marked «not checked» with the reason, never as passed.
 
-**Score:** 100 minus 15 per rule with an error and 5 per rule with a warning. A rule counts once, not per page, so one template bug does not sink a large site. A ≥ 90, B ≥ 80, C ≥ 70, D ≥ 60, F below.
+**Score:** 100 minus 15 for each check with an error and 5 for each check with a warning; a warning that covers at least half of the audited pages costs 10. A check counts once, not per page, so one template bug does not sink a large site. A ≥ 90, B ≥ 80, C ≥ 70, D ≥ 60, F below. The summary says how many checks could run on the site; if fewer than two thirds did, the grade is capped at B.
 
 ## Usage
 
