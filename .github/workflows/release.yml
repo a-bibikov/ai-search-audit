@@ -34,6 +34,10 @@ jobs:
           node-version: 24
           registry-url: https://registry.npmjs.org
 
+      # Trusted publishing needs npm 11.5.1 or later; take the latest rather than rely on the one bundled with Node.
+      - if: ${{ steps.release.outputs.release_created }}
+        run: npm install -g npm@latest && npm --version
+
       - if: ${{ steps.release.outputs.release_created }}
         run: npm ci
 
