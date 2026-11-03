@@ -29,15 +29,21 @@ export function toMarkdown(r: Report): string {
     lines.push(`## ${ICON[worst]} ${rule.id} ${rule.title}`, "");
     for (const f of findings.slice(0, MAX_PER_RULE)) lines.push(`- ${f.level === worst ? "" : `${ICON[f.level]} `}\`${short(f.where)}\` — ${f.message}`);
     if (findings.length > MAX_PER_RULE) lines.push(`- ${t.more(findings.length - MAX_PER_RULE)}`);
-    lines.push("", `**${t.fix}:** ${rule.fix}`, "");
+    lines.push("", `**${worst === "info" ? t.recommendation : t.fix}:** ${rule.fix}`, "");
   }
 
-  const passed = r.rules.filter((rule) => !byRule.has(rule.id));
-  if (passed.length) {
-    lines.push(`## ✓ ${t.passed}`, "");
-    for (const g of Object.keys(t.groups) as Group[]) {
-      const list = passed.filter((p) => p.group === g);
-      if (list.length) lines.push(`- **${t.groups[g]}:** ${list.map((p) => `${p.id} ${p.title}`).join("; ")}`);
+  // Every audited check by group, as in the README: what is fine and what is not, at a glance.
+  lines.push(`## ${t.checklist}`, "", t.legend, "");
+  for (const g of Object.keys(t.groups) as Group[]) {
+    const list = r.rules.filter((rule) => rule.group === g).sort((a, b) => a.id.localeCompare(b.id, "en", { numeric: true }));
+    if (!list.length) continue;
+    lines.push(`**${g}. ${t.groups[g]}**`, "");
+    for (const rule of list) {
+      const found = byRule.get(rule.id) ?? [];
+      const n = (level: Level) => found.filter((f) => f.level === level).length;
+      const icon = found.length ? ICON[found.reduce<Level>((w, f) => (ORDER[f.level] < ORDER[w] ? f.level : w), "info")] : "✓";
+      const count = found.length ? ` — ${t.count({ errors: n("error"), warnings: n("warn"), notes: n("info") })}` : "";
+      lines.push(`- ${icon} ${rule.id} ${rule.title}${count}`);
     }
     lines.push("");
   }

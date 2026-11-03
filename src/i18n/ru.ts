@@ -8,8 +8,12 @@ export const ru: Messages = {
       `**${o.score}/100 (${o.grade})** · ошибок: ${o.errors} · предупреждений: ${o.warnings} · заметок: ${o.notes} · страниц: ${o.pages}`,
     clean: "Исправлять нечего: AI-поиск может прочитать, понять и процитировать эти страницы.",
     fix: "Как исправить",
+    recommendation: "Рекомендация",
     more: (n: number) => `…и ещё ${n}`,
-    passed: "Пройдено",
+    checklist: "Чек-лист",
+    legend: "✓ в порядке · ✖ ошибка · ⚠ предупреждение · ℹ заметка",
+    count: (o) =>
+      [o.errors && `ошибок: ${o.errors}`, o.warnings && `предупреждений: ${o.warnings}`, o.notes && `заметок: ${o.notes}`].filter(Boolean).join(", "),
     site: "сайт",
     footer: (pages: number, date: string) =>
       `Проверено страниц: ${pages}, ${date}. После каждого деплоя проверьте вручную: боевой CDN и защиту от ботов с настоящими AI-агентами (A-3), Google Search Console, Bing Webmaster Tools (поиск ChatGPT опирается на Bing), Яндекс Вебмастер.`,
