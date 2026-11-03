@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.3](https://github.com/a-bibikov/ai-search-audit/compare/v0.1.2...v0.1.3) (2026-11-03)
+
+
+### Fixes
+
+* CLI help names the npm package, --version flag ([31887fa](https://github.com/a-bibikov/ai-search-audit/commit/31887fada369eb41024f119b79359e5a98c03126))
+
 ## [0.1.2](https://github.com/a-bibikov/ai-search-audit/compare/v0.1.1...v0.1.2) (2026-11-03)
 
 
