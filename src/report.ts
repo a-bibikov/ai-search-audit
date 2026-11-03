@@ -1,10 +1,12 @@
 import { messages } from "./i18n/index.ts";
 import type { Report } from "./index.ts";
+import { pagesOf, penaltyOf } from "./score.ts";
 import type { Group, Level } from "./types.ts";
 
 const ICON: Record<Level, string> = { error: "✖", warn: "⚠", info: "ℹ" };
 const ORDER: Record<Level, number> = { error: 0, warn: 1, info: 2 };
 const MAX_PER_RULE = 8;
+const MAX_PRIORITIES = 3;
 
 /** Markdown report for a terminal, a PR summary or a file, in the report's language. */
 export function toMarkdown(r: Report): string {
@@ -13,12 +15,26 @@ export function toMarkdown(r: Report): string {
   const lines: string[] = [
     `# ${t.title(r.site)}`,
     "",
-    t.summary({ score: r.score, grade: r.grade, errors: r.counts.error, warnings: r.counts.warn, notes: r.counts.info, pages: r.pages.length }),
+    t.summary({ score: r.score, grade: r.grade, checked: r.checked, total: r.total, errors: r.counts.error, warnings: r.counts.warn, notes: r.counts.info, pages: r.pages.length }),
     "",
   ];
+  if (r.capped) lines.push(t.capped(r.checked, r.total), "");
 
   const byRule = new Map<string, Report["findings"]>();
   for (const f of r.findings) byRule.set(f.rule, [...(byRule.get(f.rule) ?? []), f]);
+
+  // The few changes worth the most points, in plain words: what it costs the business, then the check.
+  const top = r.rules
+    .map((rule) => ({ rule, found: byRule.get(rule.id) ?? [] }))
+    .map((x) => ({ ...x, cost: penaltyOf(x.found, r.pages.length), pages: pagesOf(x.found) }))
+    .filter((x) => x.cost > 0)
+    .sort((a, b) => b.cost - a.cost || b.pages - a.pages || a.rule.id.localeCompare(b.rule.id, "en", { numeric: true }))
+    .slice(0, MAX_PRIORITIES);
+  if (top.length) {
+    lines.push(`## ${t.priorities}`, "");
+    top.forEach(({ rule, pages }, i) => lines.push(`${i + 1}. **${rule.impact}** ${rule.id}${pages ? `, ${t.scale(pages, r.pages.length)}` : ""}`));
+    lines.push("");
+  }
   const failed = r.rules
     .filter((rule) => byRule.has(rule.id))
     .map((rule) => ({ rule, findings: byRule.get(rule.id)!, worst: byRule.get(rule.id)!.reduce<Level>((w, f) => (ORDER[f.level] < ORDER[w] ? f.level : w), "info") }))

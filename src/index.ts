@@ -19,7 +19,7 @@ export interface Report extends Score {
   pages: string[];
   findings: Finding[];
   /** `skipped` is the reason a check did not run on this site. */
-  rules: { id: string; group: Group; level: Level; title: string; fix: string; skipped?: string }[];
+  rules: { id: string; group: Group; level: Level; title: string; fix: string; impact: string; skipped?: string }[];
 }
 
 export async function audit(target: string, opts: { base?: string; config?: Partial<Config>; urls?: string[]; log?: CrawlOptions["log"] } = {}): Promise<Report> {
@@ -35,7 +35,7 @@ export async function audit(target: string, opts: { base?: string; config?: Part
     lang: config.lang,
     checkedAt: new Date().toISOString(),
     pages: site.pages.map((p) => p.fetched.publicUrl),
-    ...scoreOf(findings),
+    ...scoreOf(findings, { pages: site.pages.length, checked: active.filter((r) => !skipped.get(r.id)).length, total: active.length }),
     findings,
     rules: active.map(({ id, group, level }) => ({ id, group, level, ...t.rules[id], ...(skipped.get(id) ? { skipped: skipped.get(id)! } : {}) })),
   };
