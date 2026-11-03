@@ -11,7 +11,7 @@
   "type": "module",
   "bin": { "ai-search-audit": "dist/cli.js" },
   "exports": { ".": "./dist/index.js" },
-  "files": ["dist", "README.md", "LICENSE"],
+  "files": ["dist", "README.md", "LICENSE", "CHANGELOG.md"],
   "engines": { "node": ">=22.18" },
   "scripts": {
     "audit": "node src/cli.ts",
