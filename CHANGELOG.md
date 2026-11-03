@@ -5,7 +5,7 @@
 First release, published to npm as `ai-search-auditor` (commands `ai-search-auditor` and `ai-search-audit`).
 
 - CLI `ai-search-audit <url>`: checks whether ChatGPT, Claude, Perplexity and other answer engines can read, understand and cite a site.
-- 18 rules in seven groups: access for AI agents (A), text without JavaScript (B), entities and authorship (C), answer first (D), machine-readable versions such as `llms.txt` (E), freshness (F), content safety (G).
+- 20 checks in seven groups: access for AI agents (A), text without JavaScript (B), entities and authorship (C), answer first (D), machine-readable versions such as `llms.txt` (E), freshness (F), content safety (G).
 - Score 0–100 with a grade; a rule counts once, not per page.
 - Local builds with `--base`, page sampling across templates with `--max-pages`, CI exit codes with `--fail-on`.
 - `llms-txt` subcommand: checks only `llms.txt` and `llms-full.txt`.

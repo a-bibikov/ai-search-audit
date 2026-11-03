@@ -1,0 +1,63 @@
+# Releases: work goes to dev through PRs from feat/, fix/, docs/… branches (pr-title.yml sets the commit type),
+# dev is merged into main. release-please reads conventional commits on main and keeps a release PR
+# with the next version and the CHANGELOG. Merging that PR tags vX.Y.Z, creates the GitHub Release,
+# publishes to npm through trusted publishing (no token) and moves the floating major tag (v0, v1…) for the Action.
+name: Release
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+  id-token: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - id: release
+        uses: googleapis/release-please-action@v4
+        with:
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+      - if: ${{ steps.release.outputs.release_created }}
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Trusted publishing needs npm 11.5.1+; Node 24 ships with npm 11.
+      - if: ${{ steps.release.outputs.release_created }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+
+      - if: ${{ steps.release.outputs.release_created }}
+        run: npm ci
+
+      # prepublishOnly runs typecheck, tests and the build. Provenance is added automatically with trusted publishing.
+      # If the package requires staged publishing, approve the version on npmjs.com (Staged Packages) afterwards.
+      - if: ${{ steps.release.outputs.release_created }}
+        run: npm publish --access public
+
+      - if: ${{ steps.release.outputs.release_created }}
+        name: Move the major tag for the GitHub Action
+        run: |
+          git tag -f "v${{ steps.release.outputs.major }}"
+          git push -f origin "v${{ steps.release.outputs.major }}"
+
+      # The release PR changes package.json and CHANGELOG.md on main only: bring them back to dev,
+      # so the next release starts from the right version. A conflict stops here and needs a manual merge.
+      - if: ${{ steps.release.outputs.release_created }}
+        name: Sync the release back to dev
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git ls-remote --exit-code --heads origin dev >/dev/null; then
+            git fetch origin dev
+            git checkout -B dev origin/dev
+            git merge --no-edit origin/main
+            git push origin dev
+          fi
