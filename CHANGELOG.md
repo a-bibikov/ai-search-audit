@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.5](https://github.com/a-bibikov/ai-search-audit/compare/v0.1.4...v0.1.5) (2026-11-03)
+
+
+### Fixes
+
+* checks that cannot run are marked not checked, not passed ([e01eec5](https://github.com/a-bibikov/ai-search-audit/commit/e01eec5674c5f313ffa7b957af6c3520b86e840c))
+* checks that cannot run are marked not checked, not passed ([9281b96](https://github.com/a-bibikov/ai-search-audit/commit/9281b96ad2c6dee10d4a756b11e825fe858fc563))
+
 ## [0.1.4](https://github.com/a-bibikov/ai-search-audit/compare/v0.1.3...v0.1.4) (2026-11-03)
 
 
