@@ -1,0 +1,112 @@
+import { SEARCH_AGENTS, userAgentFor } from "./agents.ts";
+import { fetchUrl, isSameSite, pool, toPublic, type Origins } from "./fetch.ts";
+import { parsePage } from "./html.ts";
+import { parseRobots } from "./robots.ts";
+import { markdownLinks, parseSitemap } from "./sitemap.ts";
+import type { Fetched, Page, Site, Sitemap } from "./types.ts";
+
+export interface CrawlOptions {
+  maxPages: number;
+  /** Explicit page list instead of the sitemap. */
+  urls?: string[];
+  concurrency?: number;
+  log?: (line: string) => void;
+}
+
+const origin = (url: string) => new URL(url).origin;
+
+/**
+ * Picks pages so that every template is seen: URLs grouped by their path with the last segment masked
+ * (/blog/a and /blog/b are one group), then taken round-robin, home page first.
+ */
+export function pickPages(home: string, urls: string[], max: number): string[] {
+  // https://site.com and https://site.com/ are the same page: compare without the trailing slash.
+  const norm = (u: string) => u.replace(/\/$/, "");
+  const seen = new Set([norm(home)]);
+  const groups = new Map<string, string[]>();
+  for (const url of urls) {
+    if (seen.has(norm(url))) continue;
+    seen.add(norm(url));
+    const path = new URL(url).pathname.replace(/\/$/, "");
+    const segs = path.split("/").filter(Boolean);
+    const key = segs.length <= 1 ? `/${segs.join("/")}` : `/${segs.slice(0, -1).join("/")}/*`;
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key)!.push(url);
+  }
+  const picked = [home];
+  const lists = [...groups.values()];
+  for (let round = 0; picked.length < max && lists.some((l) => l.length > round); round++) {
+    for (const list of lists) {
+      const url = list[round];
+      if (url && !picked.includes(url) && picked.length < max) picked.push(url);
+    }
+  }
+  return picked;
+}
+
+const isHtml = (f: Fetched) => f.status === 200 && /html/i.test(f.headers.get("content-type") ?? "html");
+
+export async function crawl(targetInput: string, baseInput: string | undefined, opts: CrawlOptions): Promise<Site> {
+  const target = origin(targetInput);
+  const base = baseInput ? origin(baseInput) : target;
+  const o: Origins = { target, base };
+  const log = opts.log ?? (() => {});
+  const conc = opts.concurrency ?? 4;
+
+  log(`robots.txt, sitemap.xml, llms.txt`);
+  const [robotsF, llms, llmsFull] = await Promise.all([
+    fetchUrl(`${target}/robots.txt`, o, { accept: "text/plain" }),
+    fetchUrl(`${target}/llms.txt`, o, { accept: "text/plain,text/markdown" }),
+    fetchUrl(`${target}/llms-full.txt`, o, { accept: "text/plain,text/markdown" }),
+  ]);
+  const robots = robotsF.status === 200 ? { fetched: robotsF, parsed: parseRobots(robotsF.body) } : null;
+
+  let sitemap: Sitemap | null = null;
+  if (!opts.urls) {
+    const declared = robotsF.status === 200 ? [...robotsF.body.matchAll(/^\s*sitemap\s*:\s*(\S+)/gim)].map((m) => m[1]!) : [];
+    const first = await fetchUrl(declared[0] ?? `${target}/sitemap.xml`, o, { accept: "application/xml,text/xml" });
+    if (first.status === 200) {
+      const parsed = parseSitemap(first.body);
+      const urls = [...parsed.urls];
+      const children = await pool(parsed.children.slice(0, 5), conc, (u) => fetchUrl(u, o, { accept: "application/xml,text/xml" }));
+      for (const c of children) if (c.status === 200) urls.push(...parseSitemap(c.body).urls);
+      sitemap = { urls };
+    }
+  }
+
+  const home = `${base}/`;
+  const candidates = opts.urls ?? sitemap?.urls.map((u) => u.loc).filter((u) => isSameSite(u, o)) ?? [];
+  const list = pickPages(home, candidates.map((u) => toPublic(u, o)), opts.maxPages);
+  log(`${list.length} pages`);
+  const fetched = await pool(list, conc, (u) => fetchUrl(u, o));
+  const pages: Page[] = fetched.filter(isHtml).map(parsePage);
+  const failed = fetched.filter((f) => !isHtml(f));
+  for (const f of failed) log(`skip ${f.publicUrl}: ${f.error ?? f.status}`);
+  if (!pages.length) {
+    const first = fetched[0];
+    throw new Error(`${home} is not reachable: ${first?.error ?? `HTTP ${first?.status}`}`);
+  }
+
+  const feedUrls = [...new Set(pages.flatMap((p) => p.rss).map((u) => new URL(u, p0(pages, base)).href))].slice(0, 3);
+  const feeds = await pool(feedUrls, conc, (u) => fetchUrl(u, o, { accept: "application/rss+xml,application/atom+xml,application/xml" }));
+
+  log(`home page as ${SEARCH_AGENTS.length} AI agents`);
+  const asAgents = await pool([...SEARCH_AGENTS], conc, async (agent) => ({ agent, fetched: await fetchUrl(home, o, { userAgent: userAgentFor(agent) }) }));
+
+  const llmsLinks: Site["llmsLinks"] = [];
+  if (llms.status === 200) {
+    const links = [...new Set(markdownLinks(llms.body).map((h) => h.replace(/#.*$/, "")).filter((h) => h && isSameSite(h, o)))];
+    const results = await pool(links, conc, (href) => fetchUrl(href, o));
+    links.forEach((href, i) => llmsLinks.push({ href: toPublic(href, o), status: results[i]!.status }));
+  }
+
+  let undeclaredFeed: string | null = null;
+  if (!feedUrls.length) {
+    const probes = await pool(["/rss.xml", "/feed.xml", "/feed", "/atom.xml", "/index.xml"], conc, (p) => fetchUrl(`${target}${p}`, o, { accept: "application/rss+xml,application/atom+xml,application/xml" }));
+    undeclaredFeed = probes.find((f) => f.status === 200 && /<(rss|feed)\b/i.test(f.body.slice(0, 2000)))?.publicUrl ?? null;
+  }
+
+  return { target, base, robots, sitemap, pages, llms: llms.status === 200 ? llms : null, llmsFull: llmsFull.status === 200 ? llmsFull : null, feeds, asAgents, llmsLinks, undeclaredFeed };
+}
+
+const p0 = (pages: Page[], base: string) => pages[0]?.fetched.publicUrl ?? base;

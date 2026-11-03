@@ -1,0 +1,35 @@
+name: AI search audit
+description: Check that ChatGPT, Claude and Perplexity can read, understand and cite your site (GEO, AI SEO, llms.txt)
+author: Aleksandr Bibikov
+branding:
+  icon: search
+  color: green
+inputs:
+  url:
+    description: URL to audit, e.g. http://127.0.0.1:3000 for a build started in an earlier step
+    required: true
+  base:
+    description: Public origin of the site when auditing a local build, e.g. https://example.com
+    required: false
+  fail-on:
+    description: Fail the step on error (default), warn or never
+    required: false
+    default: error
+  max-pages:
+    description: Pages to audit, sampled across templates
+    required: false
+    default: "20"
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 22
+    - shell: bash
+      run: |
+        node "$GITHUB_ACTION_PATH/src/cli.ts" "$URL" ${BASE:+--base "$BASE"} --fail-on "$FAIL_ON" --max-pages "$MAX_PAGES"
+      env:
+        URL: ${{ inputs.url }}
+        BASE: ${{ inputs.base }}
+        FAIL_ON: ${{ inputs.fail-on }}
+        MAX_PAGES: ${{ inputs.max-pages }}

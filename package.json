@@ -1,0 +1,27 @@
+{
+  "name": "ai-search-audit",
+  "version": "0.1.0",
+  "description": "Checks whether AI search (ChatGPT, Claude, Perplexity, Google AI Overviews) can read, understand and cite your site: robots.txt for AI agents, text without JavaScript, JSON-LD authorship, llms.txt, freshness.",
+  "keywords": ["ai search audit", "ai seo", "aeo", "geo", "generative engine optimization", "ai search", "llms.txt", "seo", "audit", "json-ld", "chatgpt", "claude", "perplexity"],
+  "license": "MIT",
+  "author": "Aleksandr Bibikov (https://albibikov.com)",
+  "homepage": "https://github.com/a-bibikov/ai-search-audit#readme",
+  "repository": { "type": "git", "url": "git+https://github.com/a-bibikov/ai-search-audit.git" },
+  "bugs": "https://github.com/a-bibikov/ai-search-audit/issues",
+  "type": "module",
+  "bin": { "ai-search-audit": "dist/cli.js" },
+  "exports": { ".": "./dist/index.js" },
+  "files": ["dist", "README.md", "LICENSE"],
+  "engines": { "node": ">=22.18" },
+  "scripts": {
+    "audit": "node src/cli.ts",
+    "test": "node --test test/*.test.ts",
+    "typecheck": "tsc --noEmit",
+    "build": "rm -rf dist && tsc -p tsconfig.build.json",
+    "prepublishOnly": "npm run typecheck && npm test && npm run build"
+  },
+  "devDependencies": {
+    "@types/node": "^22.18.0",
+    "typescript": "^5.9.0"
+  }
+}
