@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.2](https://github.com/a-bibikov/ai-search-audit/compare/v0.1.1...v0.1.2) (2026-11-03)
+
+
+### New checks and features
+
+* checklist by section at the end of the report ([c43423c](https://github.com/a-bibikov/ai-search-audit/commit/c43423c6f1c522de056552980c39db7cb411b082))
+
 ## [0.1.1](https://github.com/a-bibikov/ai-search-audit/compare/v0.1.0...v0.1.1) (2026-11-03)
 
 
