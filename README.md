@@ -46,6 +46,9 @@ npx ai-search-audit http://127.0.0.1:3000 --base https://example.com
 # Only llms.txt and llms-full.txt
 npx ai-search-audit llms-txt https://example.com
 
+# Report in Russian (English is the default)
+npx ai-search-audit https://example.com --lang ru
+
 # JSON for scripts and agents
 npx ai-search-audit https://example.com --json --out report.json
 ```
@@ -55,6 +58,7 @@ npx ai-search-audit https://example.com --json --out report.json
 | `--base <url>` | Public origin when auditing a local build |
 | `--max-pages <n>` | Pages to audit, sampled across templates (default 20) |
 | `--fail-on <level>` | Exit 1 on `error` (default), `warn` or `never` |
+| `--lang <lang>` | Report language: `en` (default), `ru` |
 | `--json` | JSON instead of Markdown |
 | `--out <file>` | Also write the report to a file |
 | `--config <file>` | Config file (default `ai-search-audit.config.json`) |
@@ -65,7 +69,8 @@ Config:
 {
   "trainingBots": "any",
   "disable": ["C-7"],
-  "maxPages": 20
+  "maxPages": 20,
+  "lang": "en"
 }
 ```
 
@@ -80,6 +85,7 @@ Config:
     url: http://127.0.0.1:3000
     base: https://example.com
     fail-on: error
+    lang: en
 ```
 
 The report goes to the job summary.
@@ -105,6 +111,10 @@ A score-based checker gave the same site 90/100 before the fixes and missed all 
 ## Need the fixes, not just the report?
 
 The audit shows what blocks AI search. If you want it fixed and measured — what ChatGPT, Claude and Perplexity answer about your niche today and 30 days later — see [AI search audit on albibikov.com](https://albibikov.com/tools/ai-search-audit).
+
+## Languages
+
+Reports come in English (`en`, default) and Russian (`ru`). A new language is one file in `src/i18n/` typed as `Messages`: TypeScript lists every missing string, and a test checks that no string is left untranslated. Pull requests welcome.
 
 ## License
 

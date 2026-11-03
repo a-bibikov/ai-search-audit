@@ -1,3 +1,5 @@
+import type { Lang, Messages, RuleId } from "./i18n/index.ts";
+
 /** error: AI search cannot read the page or reads it wrong. warn: lowers the chance of a citation. info: a recommendation. */
 export type Level = "error" | "warn" | "info";
 
@@ -92,14 +94,14 @@ export interface Config {
   /** Rule ids to skip. */
   disable: string[];
   maxPages: number;
+  /** Report language: en (default), ru. */
+  lang: Lang;
 }
 
+/** A check. Its title and fix live in ../i18n per language; `run` writes messages through `t`. */
 export interface Rule {
-  id: string;
+  id: RuleId;
   group: Group;
   level: Level;
-  title: string;
-  /** How to fix it, one or two sentences, shown in the report. */
-  fix: string;
-  run(site: Site, config: Config): Finding[];
+  run(site: Site, config: Config, t: Messages["m"]): Finding[];
 }

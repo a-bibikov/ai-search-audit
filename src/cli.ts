@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { existsSync, readFileSync, writeFileSync, appendFileSync } from "node:fs";
 import { parseArgs } from "node:util";
-import { audit, rules, toMarkdown, type Config } from "./index.ts";
+import { DEFAULT_LANG, LANGS, audit, isLang, rules, toMarkdown, type Config } from "./index.ts";
 
 const HELP = `ai-search-audit — can ChatGPT, Claude and Perplexity read, understand and cite your site?
 
@@ -13,6 +13,7 @@ Options:
   --base <url>        public origin when auditing a local build (links in sitemap point there)
   --max-pages <n>     pages to audit, sampled across templates (default 20)
   --fail-on <level>   exit 1 on: error (default), warn, never
+  --lang <lang>       report language: ${Object.keys(LANGS).join(", ")} (default ${DEFAULT_LANG})
   --json              print the JSON report instead of Markdown
   --out <file>        also write the report to a file (.json or .md)
   --config <file>     config file (default: ai-search-audit.config.json if present)
@@ -21,6 +22,7 @@ Options:
 Examples:
   npx ai-search-audit https://example.com
   npx ai-search-audit http://127.0.0.1:3000 --base https://example.com --fail-on warn
+  npx ai-search-audit https://example.com --lang ru
 `;
 
 const { values, positionals } = parseArgs({
@@ -29,6 +31,7 @@ const { values, positionals } = parseArgs({
     base: { type: "string" },
     "max-pages": { type: "string" },
     "fail-on": { type: "string", default: "error" },
+    lang: { type: "string" },
     json: { type: "boolean", default: false },
     out: { type: "string" },
     config: { type: "string" },
@@ -43,11 +46,21 @@ if (values.help || !target) {
   process.exit(values.help ? 0 : 2);
 }
 
+// A function declaration, not an arrow: TypeScript treats only declared `never` functions as the end of a branch.
+function fail(message: string): never {
+  process.stderr.write(`ai-search-audit: ${message}\n`);
+  process.exit(2);
+}
+
 const url = /^https?:\/\//.test(target) ? target : `https://${target}`;
 const configPath = values.config ?? (existsSync("ai-search-audit.config.json") ? "ai-search-audit.config.json" : undefined);
 const fileConfig: Partial<Config> = configPath ? JSON.parse(readFileSync(configPath, "utf8")) : {};
+// --lang wins over the config file; an unknown language stops before any request is made.
+const lang = values.lang ?? fileConfig.lang ?? DEFAULT_LANG;
+if (!isLang(lang)) fail(`unknown language «${lang}», use one of: ${Object.keys(LANGS).join(", ")}`);
 const config: Partial<Config> = {
   ...fileConfig,
+  lang: lang as Config["lang"],
   ...(values["max-pages"] ? { maxPages: Number(values["max-pages"]) } : {}),
   ...(llmsOnly ? { maxPages: 3, disable: rules.map((r) => r.id).filter((id) => !id.startsWith("E-") && id !== "G-1") } : {}),
 };
@@ -57,8 +70,7 @@ let report: Awaited<ReturnType<typeof audit>>;
 try {
   report = await audit(url, { base: values.base, config, log });
 } catch (e) {
-  process.stderr.write(`ai-search-audit: ${(e as Error).message}\n`);
-  process.exit(2);
+  fail((e as Error).message);
 }
 const markdown = toMarkdown(report);
 

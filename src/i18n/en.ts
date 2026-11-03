@@ -1,0 +1,156 @@
+/**
+ * English report text: the reference for every other language. A new language is a file that satisfies the
+ * `Messages` type below (TypeScript lists what is missing) plus one line in ./index.ts.
+ */
+export const en = {
+  report: {
+    title: (site: string) => `AI search audit: ${site}`,
+    summary: (o: { score: number; grade: string; errors: number; warnings: number; notes: number; pages: number }) =>
+      `**${o.score}/100 (${o.grade})** · ${o.errors} errors · ${o.warnings} warnings · ${o.notes} notes · ${o.pages} pages`,
+    clean: "Nothing to fix: AI search can read, understand and cite these pages.",
+    fix: "Fix",
+    more: (n: number) => `…and ${n} more`,
+    passed: "Passed",
+    site: "site",
+    footer: (pages: number, date: string) =>
+      `Checked ${pages} pages on ${date}. Also check by hand after each deploy: the live CDN and bot protection with real AI agents (A-3), Google Search Console, Bing Webmaster Tools (ChatGPT search uses Bing), Yandex Webmaster.`,
+    groups: {
+      A: "Access for AI agents",
+      B: "Text without JavaScript",
+      C: "Entities and authorship",
+      D: "Answer first",
+      E: "Machine-readable versions",
+      F: "Freshness",
+      G: "Content safety",
+    },
+  },
+
+  rules: {
+    "A-1": {
+      title: "robots.txt lets AI search agents in",
+      fix: "Remove the Disallow for these agents (or add `Allow: /` in their group). They fetch pages to answer questions and cite them; training crawlers are a separate choice (A-2).",
+    },
+    "A-2": {
+      title: "Training crawlers follow your policy",
+      fix: "Decide whether future models may learn from the site and state it in robots.txt with a group per crawler. Blocking them does not remove you from AI search (A-1).",
+    },
+    "A-3": {
+      title: "The server answers AI agents like a browser",
+      fix: "Check the CDN, WAF or bot protection: these agents get an error, a challenge or a different page. Allow them by user agent or verified IP ranges.",
+    },
+    "A-4": {
+      title: "No noindex or noai on public pages",
+      fix: 'Remove `noindex`, `none`, `noai` from `<meta name="robots">` and the `X-Robots-Tag` header on pages that should be cited (keep them on previews and staging).',
+    },
+    "A-5": {
+      title: "The feed is declared in <head>",
+      fix: 'Add `<link rel="alternate" type="application/rss+xml" href="…">` to pages so crawlers find new content without guessing the address.',
+    },
+    "B-1": {
+      title: "The text is in the HTML, not only in JavaScript",
+      fix: "Render the content on the server (SSR or static generation). Most AI crawlers do not run JavaScript: what is not in the HTML does not exist for them.",
+    },
+    "B-2": {
+      title: "No invisible characters inside words in machine-readable output",
+      fix: "Strip U+2060, U+200B, U+FEFF and U+00AD from <title>, meta, JSON-LD, feeds and llms.txt: «AI-⟨U+2060⟩native» with a hidden character does not match the query «AI-native». On the page itself typography can keep them, use CSS `white-space: nowrap` where you can.",
+    },
+    "B-3": {
+      title: "Headings do not glue words together",
+      fix: 'Put a space between sibling elements inside the heading (in JSX: `{" "}`). Styles show two lines, but a crawler reads the text nodes joined: «NameTagline».',
+    },
+    "C-1": {
+      title: "The author or company is a defined entity",
+      fix: "Add JSON-LD Person (or Organization) to the home or about page with a stable `@id` (e.g. https://example.com/#person), `name`, `url`, `sameAs` with your profiles, and `jobTitle` for a person.",
+    },
+    "C-2": {
+      title: "Articles point at the author entity by @id",
+      fix: 'Set `author: { "@id": "https://example.com/#person" }` (plus name and url if you like) — the same @id as the Person on the home page.',
+    },
+    "C-4": {
+      title: "Articles have complete Article / BlogPosting markup",
+      fix: "Fill in `headline`, `datePublished`, `author` (required), and `dateModified`, `image`, `inLanguage`.",
+    },
+    "C-6": {
+      title: "Every page has a link card: og:title, og:description, og:image",
+      fix: "Add og:image (1200×630) and og:title / og:description to each public page. Chat apps, social networks and AI answers build the link card from them.",
+    },
+    "C-7": {
+      title: "A visible FAQ is marked up as FAQPage",
+      fix: "If the page really is questions and answers, add FAQPage JSON-LD with the same questions and answers as on the page.",
+    },
+    "D-2": {
+      title: "Articles answer in the first two paragraphs",
+      fix: "Open with the answer: what it is, for whom, the main conclusion, in 25+ words. Answer engines quote the first paragraphs most often; an intro like «In this article we will…» wastes them.",
+    },
+    "E-1": {
+      title: "llms.txt exists and follows llmstxt.org",
+      fix: "Serve /llms.txt as Markdown: `# Site name`, a `> one-line summary`, then `## Sections` with `- [Title](url): note` links to the key pages.",
+    },
+    "E-2": {
+      title: "Links in llms.txt work and match the sitemap",
+      fix: "Fix or remove broken links; list only published pages. A link that is in llms.txt but not in sitemap.xml is often a draft or a stale URL.",
+    },
+    "E-3": {
+      title: "Each language has its own llms.txt",
+      fix: "For a multilingual site, serve llms.txt per language (e.g. /llms.txt and /ru/llms.txt) and link them to each other.",
+    },
+    "E-5": {
+      title: "llms-full.txt carries the full text",
+      fix: "Serve /llms-full.txt with the full text of key pages and articles, so a model can read the site in one request.",
+    },
+    "F-1": {
+      title: "Sitemap lastmod matches the page's dateModified",
+      fix: "Generate lastmod from the same date as JSON-LD dateModified; a mismatch tells crawlers the page changed when it did not, or hides real updates.",
+    },
+    "G-1": {
+      title: "No instructions addressed to AI in the content",
+      fix: "Remove lines that tell AI systems what to say or do. Answer engines treat them as prompt injection and may drop the page or trust the site less. An easter egg for humans can live in humans.txt or the console.",
+    },
+  },
+
+  /** Finding messages. Quotes («…»), URLs and code come in already formatted. */
+  m: {
+    none: "none",
+    blockedSite: (agent: string) => `${agent} is blocked on the whole site`,
+    blockedPages: (agent: string, n: number, total: number, example: string) => `${agent} is blocked on ${n} of ${total} pages, e.g. ${example}`,
+    trainingBlockButAllowed: (list: string) => `Policy is block, but allowed: ${list}`,
+    trainingAllowButBlocked: (list: string) => `Policy is allow, but blocked: ${list}`,
+    trainingStatus: (allowed: string, blocked: string) => `Training crawlers — allowed: ${allowed}; blocked: ${blocked}`,
+    agentGets: (agent: string, what: string) => `${agent} gets ${what}`,
+    agentSmallPage: (agent: string, size: number, normal: number) => `${agent} gets a page half the usual size (${size} vs ${normal} bytes): a challenge or a stub?`,
+    undeclaredFeed: (url: string) => `A feed exists at ${url}, but no page links to it in <head>`,
+    fewWords: (words: number, article: boolean, min: number) => `${words} words in the HTML without JavaScript (${article ? "article" : "page"}: at least ${min})`,
+    h1Typography: (q: string) => `H1 ${q} — fine if it is deliberate typography, the visible text is matched less strictly`,
+    feedInvisible: (n: number) => `${n} invisible characters in the feed`,
+    fileInvisible: (n: number) => `${n} invisible characters`,
+    h1Reads: (q: string) => `H1 reads as ${q}`,
+    noEntity: "No Person or Organization with name and url in JSON-LD on any audited page",
+    noId: (type: string, name: string) => `${type} «${name}» has no @id: articles cannot point at it as one entity`,
+    noSameAs: (type: string, name: string) => `${type} «${name}» has no sameAs (LinkedIn, GitHub…): models cannot confirm who this is`,
+    noJobTitle: (name: string) => `Person «${name}» has no jobTitle`,
+    authorNoId: (name: string) => `author ${name} has no @id`,
+    authorUnknownId: (id: string) => `author @id ${id} matches no Person or Organization defined on the site`,
+    articleMissing: (type: string, fields: string) => `${type} without ${fields}`,
+    noOg: (tags: string) => `no ${tags}`,
+    faqDetails: (n: number) => `${n} <details> and no FAQPage — check by hand whether this is an FAQ`,
+    faqQuestions: (n: number) => `${n} headings ending with «?» and no FAQPage — check by hand whether this is an FAQ`,
+    introFirst: (q: string) => `starts with an intro instead of the answer: ${q}`,
+    noLongParagraph: "no paragraph of 25+ words among the first two",
+    notFound: (path: string) => `${path} not found`,
+    returnsHtml: "returns HTML, not Markdown",
+    noH1: "does not start with an H1 `# Name`",
+    noSummary: "no `> summary` line",
+    noSections: "no `## sections`",
+    noLinks: "no links",
+    brokenLink: (status: string) => `listed in llms.txt, answers ${status}`,
+    nothing: "nothing",
+    notInSitemap: "listed in llms.txt but not in sitemap.xml",
+    noOtherLlms: (n: number, langs: string) => `site has ${n} languages (${langs}), llms.txt links to no other llms.txt`,
+    noArticleText: (missing: number, total: number, example: string) => `no article text for ${missing} of ${total} audited articles, e.g. ${example}`,
+    lastmodMismatch: (lastmod: string, modified: string) => `sitemap lastmod ${lastmod}, dateModified ${modified}`,
+    noLastmod: "no lastmod in sitemap.xml",
+  },
+};
+
+export type Messages = typeof en;
+export type RuleId = keyof Messages["rules"];

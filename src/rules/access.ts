@@ -12,15 +12,13 @@ export const accessRules: Rule[] = [
     id: "A-1",
     group: "A",
     level: "error",
-    title: "robots.txt lets AI search agents in",
-    fix: "Remove the Disallow for these agents (or add `Allow: /` in their group). They fetch pages to answer questions and cite them; training crawlers are a separate choice (A-2).",
-    run(site) {
+    run(site, _config, t) {
       const { out, add } = finder(this);
       if (!site.robots) return out;
       const paths = ["/", ...site.pages.map((p) => pathOf(p.fetched.publicUrl))];
       for (const agent of SEARCH_AGENTS) {
         const blocked = paths.filter((p) => !site.robots!.parsed.allows(agent, p));
-        if (blocked.length) add("site", `${agent} is blocked on ${blocked.length === paths.length ? "the whole site" : `${blocked.length} of ${paths.length} pages, e.g. ${blocked[0]}`}`);
+        if (blocked.length) add("site", blocked.length === paths.length ? t.blockedSite(agent) : t.blockedPages(agent, blocked.length, paths.length, blocked[0]!));
       }
       return out;
     },
@@ -29,16 +27,14 @@ export const accessRules: Rule[] = [
     id: "A-2",
     group: "A",
     level: "info",
-    title: "Training crawlers follow your policy",
-    fix: "Decide whether future models may learn from the site and state it in robots.txt with a group per crawler. Blocking them does not remove you from AI search (A-1).",
-    run(site, config) {
+    run(site, config, t) {
       const { out, add } = finder(this);
       if (!site.robots) return out;
       const allowed = TRAINING_AGENTS.filter((a) => site.robots!.parsed.allows(a, "/"));
       const blocked = TRAINING_AGENTS.filter((a) => !allowed.includes(a));
-      if (config.trainingBots === "block" && allowed.length) add("site", `Policy is block, but allowed: ${allowed.join(", ")}`, "warn");
-      else if (config.trainingBots === "allow" && blocked.length) add("site", `Policy is allow, but blocked: ${blocked.join(", ")}`, "warn");
-      else if (config.trainingBots === "any") add("site", `Training crawlers — allowed: ${allowed.join(", ") || "none"}; blocked: ${blocked.join(", ") || "none"}`);
+      if (config.trainingBots === "block" && allowed.length) add("site", t.trainingBlockButAllowed(allowed.join(", ")), "warn");
+      else if (config.trainingBots === "allow" && blocked.length) add("site", t.trainingAllowButBlocked(blocked.join(", ")), "warn");
+      else if (config.trainingBots === "any") add("site", t.trainingStatus(allowed.join(", ") || t.none, blocked.join(", ") || t.none));
       return out;
     },
   },
@@ -46,14 +42,12 @@ export const accessRules: Rule[] = [
     id: "A-3",
     group: "A",
     level: "error",
-    title: "The server answers AI agents like a browser",
-    fix: "Check the CDN, WAF or bot protection: these agents get an error, a challenge or a different page. Allow them by user agent or verified IP ranges.",
-    run(site) {
+    run(site, _config, t) {
       const { out, add } = finder(this);
       const normal = site.pages[0]?.fetched.body.length ?? 0;
       for (const { agent, fetched } of site.asAgents) {
-        if (fetched.status !== 200) add(fetched.publicUrl, `${agent} gets ${fetched.error ?? `HTTP ${fetched.status}`}`);
-        else if (normal && fetched.body.length < normal * 0.5) add(fetched.publicUrl, `${agent} gets a page half the usual size (${fetched.body.length} vs ${normal} bytes): a challenge or a stub?`);
+        if (fetched.status !== 200) add(fetched.publicUrl, t.agentGets(agent, fetched.error ?? `HTTP ${fetched.status}`));
+        else if (normal && fetched.body.length < normal * 0.5) add(fetched.publicUrl, t.agentSmallPage(agent, fetched.body.length, normal));
       }
       return out;
     },
@@ -62,8 +56,6 @@ export const accessRules: Rule[] = [
     id: "A-4",
     group: "A",
     level: "error",
-    title: "No noindex or noai on public pages",
-    fix: "Remove `noindex`, `none`, `noai` from `<meta name=\"robots\">` and the `X-Robots-Tag` header on pages that should be cited (keep them on previews and staging).",
     run(site) {
       const { out, add } = finder(this);
       const bad = /\b(noindex|none|noai)\b/i;
@@ -81,11 +73,9 @@ export const accessRules: Rule[] = [
     id: "A-5",
     group: "A",
     level: "info",
-    title: "The feed is declared in <head>",
-    fix: 'Add `<link rel="alternate" type="application/rss+xml" href="…">` to pages so crawlers find new content without guessing the address.',
-    run(site) {
+    run(site, _config, t) {
       const { out, add } = finder(this);
-      if (site.undeclaredFeed) add("site", `A feed exists at ${site.undeclaredFeed}, but no page links to it in <head>`);
+      if (site.undeclaredFeed) add("site", t.undeclaredFeed(site.undeclaredFeed));
       return out;
     },
   },

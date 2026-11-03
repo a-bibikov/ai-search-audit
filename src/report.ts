@@ -1,27 +1,19 @@
+import { messages } from "./i18n/index.ts";
 import type { Report } from "./index.ts";
-import type { Level } from "./types.ts";
+import type { Group, Level } from "./types.ts";
 
 const ICON: Record<Level, string> = { error: "✖", warn: "⚠", info: "ℹ" };
 const ORDER: Record<Level, number> = { error: 0, warn: 1, info: 2 };
 const MAX_PER_RULE = 8;
 
-const GROUPS: Record<string, string> = {
-  A: "Access for AI agents",
-  B: "Text without JavaScript",
-  C: "Entities and authorship",
-  D: "Answer first",
-  E: "Machine-readable versions",
-  F: "Freshness",
-  G: "Content safety",
-};
-
-/** Markdown report for a terminal, a PR summary or a file. */
+/** Markdown report for a terminal, a PR summary or a file, in the report's language. */
 export function toMarkdown(r: Report): string {
-  const short = (where: string) => (where === "site" ? "site" : where.startsWith(r.site) ? where.slice(r.site.length) || "/" : where);
+  const t = messages(r.lang).report;
+  const short = (where: string) => (where === "site" ? t.site : where.startsWith(r.site) ? where.slice(r.site.length) || "/" : where);
   const lines: string[] = [
-    `# AI search audit: ${r.site}`,
+    `# ${t.title(r.site)}`,
     "",
-    `**${r.score}/100 (${r.grade})** · ${r.counts.error} errors · ${r.counts.warn} warnings · ${r.counts.info} notes · ${r.pages.length} pages`,
+    t.summary({ score: r.score, grade: r.grade, errors: r.counts.error, warnings: r.counts.warn, notes: r.counts.info, pages: r.pages.length }),
     "",
   ];
 
@@ -32,20 +24,20 @@ export function toMarkdown(r: Report): string {
     .map((rule) => ({ rule, findings: byRule.get(rule.id)!, worst: byRule.get(rule.id)!.reduce<Level>((w, f) => (ORDER[f.level] < ORDER[w] ? f.level : w), "info") }))
     .sort((a, b) => ORDER[a.worst] - ORDER[b.worst] || a.rule.id.localeCompare(b.rule.id, "en", { numeric: true }));
 
-  if (!failed.length) lines.push("Nothing to fix: AI search can read, understand and cite these pages.", "");
+  if (!failed.length) lines.push(t.clean, "");
   for (const { rule, findings, worst } of failed) {
     lines.push(`## ${ICON[worst]} ${rule.id} ${rule.title}`, "");
     for (const f of findings.slice(0, MAX_PER_RULE)) lines.push(`- ${f.level === worst ? "" : `${ICON[f.level]} `}\`${short(f.where)}\` — ${f.message}`);
-    if (findings.length > MAX_PER_RULE) lines.push(`- …and ${findings.length - MAX_PER_RULE} more`);
-    lines.push("", `**Fix:** ${rule.fix}`, "");
+    if (findings.length > MAX_PER_RULE) lines.push(`- ${t.more(findings.length - MAX_PER_RULE)}`);
+    lines.push("", `**${t.fix}:** ${rule.fix}`, "");
   }
 
   const passed = r.rules.filter((rule) => !byRule.has(rule.id));
   if (passed.length) {
-    lines.push("## ✓ Passed", "");
-    for (const g of Object.keys(GROUPS)) {
+    lines.push(`## ✓ ${t.passed}`, "");
+    for (const g of Object.keys(t.groups) as Group[]) {
       const list = passed.filter((p) => p.group === g);
-      if (list.length) lines.push(`- **${GROUPS[g]}:** ${list.map((p) => `${p.id} ${p.title}`).join("; ")}`);
+      if (list.length) lines.push(`- **${t.groups[g]}:** ${list.map((p) => `${p.id} ${p.title}`).join("; ")}`);
     }
     lines.push("");
   }
@@ -53,7 +45,7 @@ export function toMarkdown(r: Report): string {
   lines.push(
     "---",
     "",
-    `Checked ${r.pages.length} pages on ${r.checkedAt.slice(0, 10)}. Also check by hand after each deploy: the live CDN and bot protection with real AI agents (A-3), Google Search Console, Bing Webmaster Tools (ChatGPT search uses Bing), Yandex Webmaster.`,
+    t.footer(r.pages.length, r.checkedAt.slice(0, 10)),
     "",
     "[ai-search-audit](https://github.com/a-bibikov/ai-search-audit)",
     "",
