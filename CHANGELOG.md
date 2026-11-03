@@ -1,5 +1,30 @@
 # Changelog
 
+## [0.2.0](https://github.com/a-bibikov/ai-search-audit/compare/v0.2.0...v0.2.0) (2026-11-03)
+
+
+### New checks and features
+
+* checklist by section at the end of the report ([c43423c](https://github.com/a-bibikov/ai-search-audit/commit/c43423c6f1c522de056552980c39db7cb411b082))
+* what to do first, coverage in the summary, weight by scale, llms.txt is optional ([f9e6ffb](https://github.com/a-bibikov/ai-search-audit/commit/f9e6ffb74b51c96b2e9639b4f580dbabe7809512))
+
+
+### Fixes
+
+* checks that cannot run are marked not checked, not passed ([e01eec5](https://github.com/a-bibikov/ai-search-audit/commit/e01eec5674c5f313ffa7b957af6c3520b86e840c))
+* checks that cannot run are marked not checked, not passed ([9281b96](https://github.com/a-bibikov/ai-search-audit/commit/9281b96ad2c6dee10d4a756b11e825fe858fc563))
+* CLI help names the npm package, --version flag ([31887fa](https://github.com/a-bibikov/ai-search-audit/commit/31887fada369eb41024f119b79359e5a98c03126))
+
+
+### Documentation
+
+* what the audit checks, roadmap, release process ([365965a](https://github.com/a-bibikov/ai-search-audit/commit/365965a7f2f0842a4dba13a0d1b8f1dfa8a8404b))
+
+
+### Internal
+
+* release 0.1.4 ([2c8056d](https://github.com/a-bibikov/ai-search-audit/commit/2c8056d386588262362e66c5fce78726df9127d8))
+
 ## [0.2.0](https://github.com/a-bibikov/ai-search-audit/compare/v0.1.5...v0.2.0) (2026-11-03)
 
 
