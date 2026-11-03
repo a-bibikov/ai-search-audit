@@ -5,8 +5,12 @@
 export const en = {
   report: {
     title: (site: string) => `AI search audit: ${site}`,
-    summary: (o: { score: number; grade: string; errors: number; warnings: number; notes: number; pages: number }) =>
-      `**${o.score}/100 (${o.grade})** · ${o.errors} errors · ${o.warnings} warnings · ${o.notes} notes · ${o.pages} pages`,
+    summary: (o: { score: number; grade: string; checked: number; total: number; errors: number; warnings: number; notes: number; pages: number }) =>
+      `**${o.score}/100 (${o.grade})** · ${o.checked} of ${o.total} checks run · ${o.errors} errors · ${o.warnings} warnings · ${o.notes} notes · ${o.pages} pages`,
+    capped: (checked: number, total: number) => `Grade capped at B: only ${checked} of ${total} checks could run on this site.`,
+    priorities: "What to do first",
+    /** Scale of a problem in the priorities: «on 12 of 20 pages». */
+    scale: (n: number, total: number) => `on ${n} of ${total} pages`,
     clean: "Nothing to fix: AI search can read, understand and cite these pages.",
     fix: "Fix",
     /** Label instead of «Fix» when a rule has only notes: nothing is broken, it is advice. */
@@ -42,82 +46,102 @@ export const en = {
     "A-1": {
       title: "robots.txt lets AI search agents in",
       fix: "Remove the Disallow for these agents (or add `Allow: /` in their group). They fetch pages to answer questions and cite them; training crawlers are a separate choice (A-2).",
+      impact: "AI search is not allowed to read the site, so it cannot cite it.",
     },
     "A-2": {
       title: "Training crawlers follow your policy",
       fix: "Decide whether future models may learn from the site and state it in robots.txt with a group per crawler. Blocking them does not remove you from AI search (A-1).",
+      impact: "Whether future models may learn from the site is not decided.",
     },
     "A-3": {
       title: "The server answers AI agents like a browser",
       fix: "Check the CDN, WAF or bot protection: these agents get an error, a challenge or a different page. Allow them by user agent or verified IP ranges.",
+      impact: "AI agents get an error or a check page instead of your content.",
     },
     "A-4": {
       title: "No noindex or noai on public pages",
       fix: 'Remove `noindex`, `none`, `noai` from `<meta name="robots">` and the `X-Robots-Tag` header on pages that should be cited (keep them on previews and staging).',
+      impact: "Pages are marked as closed, so AI search skips them.",
     },
     "A-5": {
       title: "The feed is declared in <head>",
       fix: 'Add `<link rel="alternate" type="application/rss+xml" href="…">` to pages so crawlers find new content without guessing the address.',
+      impact: "New pages are found later than they could be.",
     },
     "B-1": {
       title: "The text is in the HTML, not only in JavaScript",
       fix: "Render the content on the server (SSR or static generation). Most AI crawlers do not run JavaScript: what is not in the HTML does not exist for them.",
+      impact: "ChatGPT, Claude and Perplexity see an empty page: the text appears only after scripts run.",
     },
     "B-2": {
       title: "No invisible characters inside words in machine-readable output",
       fix: "Strip U+2060, U+200B, U+FEFF and U+00AD from <title>, meta, JSON-LD, feeds and llms.txt: «AI-⟨U+2060⟩native» with a hidden character does not match the query «AI-native». On the page itself typography can keep them, use CSS `white-space: nowrap` where you can.",
+      impact: "Hidden characters break words, so the text does not match what people search for.",
     },
     "B-3": {
       title: "Headings do not glue words together",
       fix: 'Put a space between sibling elements inside the heading (in JSX: `{" "}`). Styles show two lines, but a crawler reads the text nodes joined: «NameTagline».',
+      impact: "Headings read as glued words, so AI misreads what the page is about.",
     },
     "C-1": {
       title: "The author or company is a defined entity",
       fix: "Add JSON-LD Person (or Organization) to the home or about page with a stable `@id` (e.g. https://example.com/#person), `name`, `url`, `sameAs` with your profiles, and `jobTitle` for a person.",
+      impact: "AI search cannot tell who stands behind the site, so it trusts it less.",
     },
     "C-2": {
       title: "Articles point at the author entity by @id",
       fix: 'Set `author: { "@id": "https://example.com/#person" }` (plus name and url if you like) — the same @id as the Person on the home page.',
+      impact: "Articles are not tied to their author, so the expertise does not add up to one name.",
     },
     "C-4": {
       title: "Articles have complete Article / BlogPosting markup",
       fix: "Fill in `headline`, `datePublished`, `author` (required), and `dateModified`, `image`, `inLanguage`.",
+      impact: "Articles lack dates or authorship, so AI search treats them as less reliable.",
     },
     "C-6": {
       title: "Every page has a link card: og:title, og:description, og:image",
       fix: "Add og:image (1200×630) and og:title / og:description to each public page. Chat apps, social networks and AI answers build the link card from them.",
+      impact: "Links to the site look bare in chats and AI answers: no title, no picture.",
     },
     "C-7": {
       title: "A visible FAQ is marked up as FAQPage",
       fix: "If the page really is questions and answers, add FAQPage JSON-LD with the same questions and answers as on the page.",
+      impact: "Questions and answers on the page are not marked as such, so they are quoted less often.",
     },
     "D-2": {
       title: "Articles answer in the first two paragraphs",
       fix: "Open with the answer: what it is, for whom, the main conclusion, in 25+ words. Answer engines quote the first paragraphs most often; an intro like «In this article we will…» wastes them.",
+      impact: "The answer is buried below the intro, while AI search quotes the opening.",
     },
     "E-1": {
-      title: "llms.txt exists and follows llmstxt.org",
-      fix: "Serve /llms.txt as Markdown: `# Site name`, a `> one-line summary`, then `## Sections` with `- [Title](url): note` links to the key pages.",
+      title: "llms.txt follows llmstxt.org (optional)",
+      fix: "llms.txt is optional: AI search engines rarely read it, coding agents and docs tools do — worth it for documentation, APIs and developer products. If you publish one, serve Markdown: `# Site name`, a `> one-line summary`, then `## Sections` with `- [Title](url): note` links to the key pages.",
+      impact: "The published llms.txt cannot be read the way the agents that use it expect.",
     },
     "E-2": {
       title: "Links in llms.txt work and match the sitemap",
       fix: "Fix or remove broken links; list only published pages. A link that is in llms.txt but not in sitemap.xml is often a draft or a stale URL.",
+      impact: "Agents that use llms.txt are sent to broken or unpublished pages.",
     },
     "E-3": {
       title: "Each language has its own llms.txt",
       fix: "For a multilingual site, serve llms.txt per language (e.g. /llms.txt and /ru/llms.txt) and link them to each other.",
+      impact: "Language models get the guide to the site in one language only.",
     },
     "E-5": {
       title: "llms-full.txt carries the full text",
       fix: "Serve /llms-full.txt with the full text of key pages and articles, so a model can read the site in one request.",
+      impact: "A model cannot read the site's content in one request.",
     },
     "F-1": {
       title: "Sitemap lastmod matches the page's dateModified",
       fix: "Generate lastmod from the same date as JSON-LD dateModified; a mismatch tells crawlers the page changed when it did not, or hides real updates.",
+      impact: "Search engines get mixed signals about when pages changed.",
     },
     "G-1": {
       title: "No instructions addressed to AI in the content",
       fix: "Remove lines that tell AI systems what to say or do. Answer engines treat them as prompt injection and may drop the page or trust the site less. An easter egg for humans can live in humans.txt or the console.",
+      impact: "Text addressed to AI looks like a manipulation attempt and lowers trust in the site.",
     },
   },
 
@@ -141,6 +165,7 @@ export const en = {
     noId: (type: string, name: string) => `${type} «${name}» has no @id: articles cannot point at it as one entity`,
     noSameAs: (type: string, name: string) => `${type} «${name}» has no sameAs (LinkedIn, GitHub…): models cannot confirm who this is`,
     noJobTitle: (name: string) => `Person «${name}» has no jobTitle`,
+    entityNotOnHome: (url: string) => `the home page does not describe the company or author; it is described only on ${url}`,
     authorNoId: (name: string) => `author ${name} has no @id`,
     authorUnknownId: (id: string) => `author @id ${id} matches no Person or Organization defined on the site`,
     articleMissing: (type: string, fields: string) => `${type} without ${fields}`,
@@ -150,6 +175,7 @@ export const en = {
     introFirst: (q: string) => `starts with an intro instead of the answer: ${q}`,
     noLongParagraph: "no paragraph of 25+ words among the first two",
     notFound: (path: string) => `${path} not found`,
+    llmsMissing: "no /llms.txt — optional: AI search engines rarely read it; it helps documentation, APIs and coding agents",
     answers: (path: string, status: string) => `${path} answers ${status}, so AI agents cannot read it`,
     skipNoArticles: "no articles among the audited pages",
     skipNoLlms: "no llms.txt",

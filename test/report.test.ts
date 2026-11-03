@@ -6,10 +6,13 @@ const report = (lang: "en" | "ru"): Report => ({
   site: "https://ada.example",
   lang,
   checkedAt: "2026-11-03T00:00:00.000Z",
-  pages: ["https://ada.example/"],
+  pages: ["https://ada.example/", "https://ada.example/cv", "https://ada.example/blog"],
   score: 75,
   grade: "C",
   counts: { error: 1, warn: 2, info: 1 },
+  checked: 4,
+  total: 4,
+  capped: false,
   findings: [
     { rule: "B-3", level: "warn", where: "https://ada.example/", message: "H1" },
     { rule: "B-3", level: "warn", where: "https://ada.example/cv", message: "H1" },
@@ -17,10 +20,10 @@ const report = (lang: "en" | "ru"): Report => ({
     { rule: "A-2", level: "info", where: "site", message: "policy" },
   ],
   rules: [
-    { id: "A-1", group: "A", level: "error", title: "Agents allowed", fix: "allow" },
-    { id: "A-2", group: "A", level: "info", title: "Training policy", fix: "decide" },
-    { id: "B-1", group: "B", level: "error", title: "Text in HTML", fix: "render" },
-    { id: "B-3", group: "B", level: "warn", title: "Headings not glued", fix: "space" },
+    { id: "A-1", group: "A", level: "error", title: "Agents allowed", fix: "allow", impact: "AI cannot read." },
+    { id: "A-2", group: "A", level: "info", title: "Training policy", fix: "decide", impact: "Undecided." },
+    { id: "B-1", group: "B", level: "error", title: "Text in HTML", fix: "render", impact: "Empty page for AI." },
+    { id: "B-3", group: "B", level: "warn", title: "Headings not glued", fix: "space", impact: "Glued headings." },
   ],
 });
 
@@ -47,5 +50,20 @@ describe("report checklist", () => {
     assert.match(md, /## Чек-лист/);
     assert.match(md, /- ⚠ B-3 Headings not glued — предупреждений: 2/);
     assert.match(md, /\*\*Рекомендация:\*\*/);
+  });
+
+  it("starts with what to do first, costliest first, with the scale", () => {
+    const md = toMarkdown(report("en"));
+    const block = md.slice(md.indexOf("## What to do first"), md.indexOf("## ✖"));
+    // B-1 error costs 15; B-3 warns on 2 of 3 pages, a site-wide problem that costs 10; A-2 is a note and costs nothing.
+    assert.match(block, /1\. \*\*Empty page for AI\.\*\* B-1, on 1 of 3 pages\n2\. \*\*Glued headings\.\*\* B-3, on 2 of 3 pages\n\n/);
+    assert.doesNotMatch(block, /Undecided/);
+    assert.ok(md.indexOf("## What to do first") < md.indexOf("## ✖ B-1"), "priorities come before the details");
+  });
+
+  it("shows coverage in the summary and says when the grade is capped", () => {
+    const md = toMarkdown({ ...report("ru"), checked: 12, total: 20, capped: true, grade: "B", score: 95 });
+    assert.match(md, /\*\*95\/100 \(B\)\*\* · проверено: 12 из 20 ·/);
+    assert.match(md, /Оценка ограничена B: на этом сайте удалось выполнить только 12 проверок из 20\./);
   });
 });

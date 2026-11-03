@@ -46,9 +46,11 @@ export const contentRules: Rule[] = [
     level: "warn",
     run(site, _config, t) {
       const { out, add } = finder(this);
+      // No llms.txt is a note, not a warning: AI search engines rarely read it (2026 crawler logs), coding agents and
+      // docs tools do. A published but broken file is a warning: whoever uses it gets nothing.
       if (!site.llms) {
         const a = site.llmsAttempt;
-        add("site", a.status === 404 || a.status === 410 ? t.notFound("/llms.txt") : t.answers("/llms.txt", a.error ?? `HTTP ${a.status}`));
+        add("site", a.status === 404 || a.status === 410 ? t.llmsMissing : t.answers("/llms.txt", a.error ?? `HTTP ${a.status}`), "info");
         return out;
       }
       const body = site.llms.body;
@@ -64,7 +66,7 @@ export const contentRules: Rule[] = [
   {
     id: "E-2",
     group: "E",
-    level: "error",
+    level: "warn",
     applies(site, t) {
       return llmsReadable(site) ? null : t.skipNoLlms;
     },
@@ -73,7 +75,7 @@ export const contentRules: Rule[] = [
       const inSitemap = new Set((site.sitemap?.urls ?? []).map((u) => u.loc.replace(/\/$/, "")));
       for (const { href, status } of site.llmsLinks) {
         if (status !== 200) add(href, t.brokenLink(status ? String(status) : t.nothing));
-        else if (site.sitemap && /\/[^./]*$/.test(new URL(href).pathname) && !inSitemap.has(href.replace(/\/$/, ""))) add(href, t.notInSitemap, "warn");
+        else if (site.sitemap && /\/[^./]*$/.test(new URL(href).pathname) && !inSitemap.has(href.replace(/\/$/, ""))) add(href, t.notInSitemap, "info");
       }
       return out;
     },
