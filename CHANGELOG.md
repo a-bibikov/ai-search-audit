@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.1](https://github.com/a-bibikov/ai-search-audit/compare/v0.1.0...v0.1.1) (2026-11-03)
+
+
+### Documentation
+
+* what the audit checks, roadmap, release process ([365965a](https://github.com/a-bibikov/ai-search-audit/commit/365965a7f2f0842a4dba13a0d1b8f1dfa8a8404b))
+
 ## 0.1.0 — 2026-11-03
 
 First release, published to npm as `ai-search-auditor` (commands `ai-search-auditor` and `ai-search-audit`).
