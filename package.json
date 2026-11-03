@@ -1,5 +1,5 @@
 {
-  "name": "ai-search-audit",
+  "name": "ai-search-auditor",
   "version": "0.1.0",
   "description": "Checks whether AI search (ChatGPT, Claude, Perplexity, Google AI Overviews) can read, understand and cite your site: robots.txt for AI agents, text without JavaScript, JSON-LD authorship, llms.txt, freshness.",
   "keywords": ["ai search audit", "ai seo", "aeo", "geo", "generative engine optimization", "ai search", "llms.txt", "seo", "audit", "json-ld", "chatgpt", "claude", "perplexity"],
@@ -9,7 +9,7 @@
   "repository": { "type": "git", "url": "git+https://github.com/a-bibikov/ai-search-audit.git" },
   "bugs": "https://github.com/a-bibikov/ai-search-audit/issues",
   "type": "module",
-  "bin": { "ai-search-audit": "dist/cli.js" },
+  "bin": { "ai-search-auditor": "dist/cli.js", "ai-search-audit": "dist/cli.js" },
   "exports": { ".": "./dist/index.js" },
   "files": ["dist", "README.md", "LICENSE", "CHANGELOG.md"],
   "engines": { "node": ">=22.18" },

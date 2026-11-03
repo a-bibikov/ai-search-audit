@@ -3,10 +3,12 @@
 **Can ChatGPT, Claude and Perplexity read, understand and cite your site?** One command checks what AI search actually sees: robots.txt for AI agents, text without JavaScript, authorship in JSON-LD, `llms.txt`, freshness, and content that answer engines treat as prompt injection.
 
 ```bash
-npx ai-search-audit https://example.com
+npx ai-search-auditor https://example.com
 ```
 
 No sign-up, no API keys, no dependencies. Node.js 22.18+.
+
+The npm package is `ai-search-auditor`; once installed (`npm i -g ai-search-auditor`), the command is also available as `ai-search-audit`.
 
 ## Why another GEO checker
 
@@ -38,19 +40,19 @@ Levels: `error` — AI search cannot read the page or reads it wrong; `warn` —
 
 ```bash
 # A live site
-npx ai-search-audit https://example.com
+npx ai-search-auditor https://example.com
 
 # A local build: requests go to localhost, the report shows public URLs
-npx ai-search-audit http://127.0.0.1:3000 --base https://example.com
+npx ai-search-auditor http://127.0.0.1:3000 --base https://example.com
 
 # Only llms.txt and llms-full.txt
-npx ai-search-audit llms-txt https://example.com
+npx ai-search-auditor llms-txt https://example.com
 
 # Report in Russian (English is the default)
-npx ai-search-audit https://example.com --lang ru
+npx ai-search-auditor https://example.com --lang ru
 
 # JSON for scripts and agents
-npx ai-search-audit https://example.com --json --out report.json
+npx ai-search-auditor https://example.com --json --out report.json
 ```
 
 | Option | |

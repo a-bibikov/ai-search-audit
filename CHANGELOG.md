@@ -2,7 +2,7 @@
 
 ## 0.1.0 — 2026-11-03
 
-First release.
+First release, published to npm as `ai-search-auditor` (commands `ai-search-auditor` and `ai-search-audit`).
 
 - CLI `ai-search-audit <url>`: checks whether ChatGPT, Claude, Perplexity and other answer engines can read, understand and cite a site.
 - 18 rules in seven groups: access for AI agents (A), text without JavaScript (B), entities and authorship (C), answer first (D), machine-readable versions such as `llms.txt` (E), freshness (F), content safety (G).

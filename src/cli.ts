@@ -20,9 +20,9 @@ Options:
   -h, --help
 
 Examples:
-  npx ai-search-audit https://example.com
-  npx ai-search-audit http://127.0.0.1:3000 --base https://example.com --fail-on warn
-  npx ai-search-audit https://example.com --lang ru
+  npx ai-search-auditor https://example.com
+  npx ai-search-auditor http://127.0.0.1:3000 --base https://example.com --fail-on warn
+  npx ai-search-auditor https://example.com --lang ru
 `;
 
 const { values, positionals } = parseArgs({
