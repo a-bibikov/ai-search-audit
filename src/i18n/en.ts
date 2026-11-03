@@ -9,8 +9,20 @@ export const en = {
       `**${o.score}/100 (${o.grade})** · ${o.errors} errors · ${o.warnings} warnings · ${o.notes} notes · ${o.pages} pages`,
     clean: "Nothing to fix: AI search can read, understand and cite these pages.",
     fix: "Fix",
+    /** Label instead of «Fix» when a rule has only notes: nothing is broken, it is advice. */
+    recommendation: "Recommendation",
     more: (n: number) => `…and ${n} more`,
-    passed: "Passed",
+    checklist: "Checklist",
+    legend: "✓ OK · ✖ error · ⚠ warning · ℹ note",
+    /** Findings of one rule in the checklist: «2 errors, 1 warning». */
+    count: (o: { errors: number; warnings: number; notes: number }) =>
+      [
+        o.errors && `${o.errors} ${o.errors === 1 ? "error" : "errors"}`,
+        o.warnings && `${o.warnings} ${o.warnings === 1 ? "warning" : "warnings"}`,
+        o.notes && `${o.notes} ${o.notes === 1 ? "note" : "notes"}`,
+      ]
+        .filter(Boolean)
+        .join(", "),
     site: "site",
     footer: (pages: number, date: string) =>
       `Checked ${pages} pages on ${date}. Also check by hand after each deploy: the live CDN and bot protection with real AI agents (A-3), Google Search Console, Bing Webmaster Tools (ChatGPT search uses Bing), Yandex Webmaster.`,

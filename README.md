@@ -68,6 +68,8 @@ Gaps in the numbering are taken by the checks on the [roadmap](#roadmap).
 
 Levels: `error` — AI search cannot read the page or reads it wrong; `warn` — lowers the chance of a citation; `info` — a recommendation.
 
+The report lists the findings with fixes first, then ends with a checklist of every check by group: ✓ OK, ✖ error, ⚠ warning, ℹ note.
+
 **Score:** 100 minus 15 per rule with an error and 5 per rule with a warning. A rule counts once, not per page, so one template bug does not sink a large site. A ≥ 90, B ≥ 80, C ≥ 70, D ≥ 60, F below.
 
 ## Usage
