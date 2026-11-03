@@ -3,11 +3,17 @@ import { existsSync, readFileSync, writeFileSync, appendFileSync } from "node:fs
 import { parseArgs } from "node:util";
 import { DEFAULT_LANG, LANGS, audit, isLang, rules, toMarkdown, type Config } from "./index.ts";
 
-const HELP = `ai-search-audit — can ChatGPT, Claude and Perplexity read, understand and cite your site?
+// package.json sits one level up both from src/cli.ts (development) and dist/cli.js (published package).
+const { version } = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8")) as { version: string };
+
+const HELP = `ai-search-auditor ${version} — can ChatGPT, Claude and Perplexity read, understand and cite your site?
 
 Usage:
-  ai-search-audit <url> [options]
-  ai-search-audit llms-txt <url>        check only llms.txt and llms-full.txt
+  ai-search-auditor <url> [options]
+  ai-search-auditor llms-txt <url>      check only llms.txt and llms-full.txt
+
+  npm package: ai-search-auditor (npx ai-search-auditor, npm i -g ai-search-auditor).
+  After install the command also works as ai-search-audit.
 
 Options:
   --base <url>        public origin when auditing a local build (links in sitemap point there)
@@ -17,6 +23,7 @@ Options:
   --json              print the JSON report instead of Markdown
   --out <file>        also write the report to a file (.json or .md)
   --config <file>     config file (default: ai-search-audit.config.json if present)
+  -v, --version       print the version
   -h, --help
 
 Examples:
@@ -36,8 +43,14 @@ const { values, positionals } = parseArgs({
     out: { type: "string" },
     config: { type: "string" },
     help: { type: "boolean", short: "h", default: false },
+    version: { type: "boolean", short: "v", default: false },
   },
 });
+
+if (values.version) {
+  process.stdout.write(`${version}\n`);
+  process.exit(0);
+}
 
 const llmsOnly = positionals[0] === "llms-txt";
 const target = llmsOnly ? positionals[1] : positionals[0];
