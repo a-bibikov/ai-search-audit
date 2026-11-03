@@ -1,6 +1,6 @@
 {
   "name": "ai-search-auditor",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Checks whether AI search (ChatGPT, Claude, Perplexity, Google AI Overviews) can read, understand and cite your site: robots.txt for AI agents, text without JavaScript, JSON-LD authorship, llms.txt, freshness.",
   "keywords": [
     "ai search audit",

@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.4](https://github.com/a-bibikov/ai-search-audit/compare/v0.1.3...v0.1.4) (2026-11-03)
+
+
+### Internal
+
+* release 0.1.4 ([2c8056d](https://github.com/a-bibikov/ai-search-audit/commit/2c8056d386588262362e66c5fce78726df9127d8))
+
 ## [0.1.3](https://github.com/a-bibikov/ai-search-audit/compare/v0.1.2...v0.1.3) (2026-11-03)
 
 
