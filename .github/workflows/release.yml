@@ -28,6 +28,8 @@ jobs:
         if: ${{ github.event_name == 'push' }}
         uses: googleapis/release-please-action@v4
         with:
+          # Releases are made from main only, whichever branch the workflow runs on.
+          target-branch: main
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
 

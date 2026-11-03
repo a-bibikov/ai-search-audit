@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.0](https://github.com/a-bibikov/ai-search-audit/compare/v0.1.5...v0.2.0) (2026-11-03)
+
+
+### New checks and features
+
+* what to do first, coverage in the summary, weight by scale, llms.txt is optional ([f9e6ffb](https://github.com/a-bibikov/ai-search-audit/commit/f9e6ffb74b51c96b2e9639b4f580dbabe7809512))
+
 ## [0.1.5](https://github.com/a-bibikov/ai-search-audit/compare/v0.1.4...v0.1.5) (2026-11-03)
 
 
