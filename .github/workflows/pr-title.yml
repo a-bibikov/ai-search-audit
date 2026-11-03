@@ -1,4 +1,4 @@
-# Pull requests into dev: the branch name sets the release type.
+# Pull requests into dev (and straight into main): the branch name sets the release type.
 #   feat/…  → «feat: …»  minor release (0.1 → 0.2)
 #   fix/…   → «fix: …»   patch release
 #   docs/…  → «docs: …»  patch release
@@ -9,7 +9,7 @@
 name: PR title from branch
 on:
   pull_request:
-    branches: [dev]
+    branches: [dev, main]
     types: [opened, edited, reopened, synchronize]
 
 permissions:
@@ -17,6 +17,8 @@ permissions:
 
 jobs:
   title:
+    # dev → main merges and release-please PRs keep their own titles.
+    if: ${{ github.head_ref != 'dev' && !startsWith(github.head_ref, 'release-please--') }}
     runs-on: ubuntu-latest
     steps:
       - name: Set the conventional prefix from the branch name
