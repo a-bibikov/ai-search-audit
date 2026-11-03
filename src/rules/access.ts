@@ -73,6 +73,9 @@ export const accessRules: Rule[] = [
     id: "A-5",
     group: "A",
     level: "info",
+    applies(site, t) {
+      return site.feeds.length || site.undeclaredFeed ? null : t.skipNoFeed;
+    },
     run(site, _config, t) {
       const { out, add } = finder(this);
       if (site.undeclaredFeed) add("site", t.undeclaredFeed(site.undeclaredFeed));

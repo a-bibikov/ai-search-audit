@@ -13,7 +13,8 @@ export const en = {
     recommendation: "Recommendation",
     more: (n: number) => `…and ${n} more`,
     checklist: "Checklist",
-    legend: "✓ OK · ✖ error · ⚠ warning · ℹ note",
+    legend: "✓ OK · ✖ error · ⚠ warning · ℹ note · – not checked",
+    notChecked: "not checked",
     /** Findings of one rule in the checklist: «2 errors, 1 warning». */
     count: (o: { errors: number; warnings: number; notes: number }) =>
       [
@@ -149,6 +150,12 @@ export const en = {
     introFirst: (q: string) => `starts with an intro instead of the answer: ${q}`,
     noLongParagraph: "no paragraph of 25+ words among the first two",
     notFound: (path: string) => `${path} not found`,
+    answers: (path: string, status: string) => `${path} answers ${status}, so AI agents cannot read it`,
+    skipNoArticles: "no articles among the audited pages",
+    skipNoLlms: "no llms.txt",
+    skipNoFeed: "the site has no feed",
+    skipOneLanguage: "the site has one language",
+    skipNoSitemap: "no sitemap.xml",
     returnsHtml: "returns HTML, not Markdown",
     noH1: "does not start with an H1 `# Name`",
     noSummary: "no `> summary` line",
