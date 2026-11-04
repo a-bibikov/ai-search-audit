@@ -9,6 +9,9 @@ export const en = {
       `**${o.score}/100 (${o.grade})** · ${o.checked} of ${o.total} checks run · ${o.errors} errors · ${o.warnings} warnings · ${o.notes} notes · ${o.pages} pages`,
     capped: (checked: number, total: number) => `Grade capped at B: only ${checked} of ${total} checks could run on this site.`,
     priorities: "What to do first",
+    /** One part of a combined report, under the summary. */
+    section: (o: { name: string; score: number; grade: string; checked: number; total: number }) =>
+      `- **${o.name}:** ${o.score}/100 (${o.grade}) · ${o.checked} of ${o.total} checks run`,
     /** Scale of a problem in the priorities: «on 12 of 20 pages». */
     scale: (n: number, total: number) => `on ${n} of ${total} pages`,
     clean: "Nothing to fix: AI search can read, understand and cite these pages.",
