@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 import { existsSync, readFileSync, writeFileSync, appendFileSync } from "node:fs";
 import { parseArgs } from "node:util";
-import { DEFAULT_LANG, LANGS, audit, isLang, parsePages, rules, toMarkdown, type Config } from "./index.ts";
+import { DEFAULT_LANG, LANGS, audit, isLang, parsePages, rules, toMarkdown, type Config, type Report } from "./index.ts";
+import { SEO_PACKAGE, loadSeo } from "./seo.ts";
 
 // package.json sits one level up both from src/cli.ts (development) and dist/cli.js (published package).
 const { version } = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8")) as { version: string };
@@ -18,6 +19,8 @@ Usage:
 Options:
   --base <url>        public origin when auditing a local build (links in sitemap point there)
   --pages <n|all>     pages to audit: a number sampled across templates (default 20), or all pages in the sitemap
+  --seo               also run the classic SEO checks of search-auditor: one crawl, one report
+  --max-links <n>     with --seo: internal links to request (default 100)
   --fail-on <level>   exit 1 on: error (default), warn, never
   --lang <lang>       report language: ${Object.keys(LANGS).join(", ")} (default ${DEFAULT_LANG})
   --json              print the JSON report instead of Markdown
@@ -30,6 +33,7 @@ Examples:
   npx ai-search-auditor https://example.com
   npx ai-search-auditor http://127.0.0.1:3000 --base https://example.com --fail-on warn
   npx ai-search-auditor https://example.com --lang ru --pages all
+  npx -p ai-search-auditor -p search-auditor ai-search-auditor https://example.com --seo
 `;
 
 // An unknown or malformed flag gets one line with the help hint, not a stack trace.
@@ -42,6 +46,8 @@ try {
     pages: { type: "string" },
     // The old name of --pages, kept so existing scripts and workflows keep working.
     "max-pages": { type: "string" },
+    seo: { type: "boolean", default: false },
+    "max-links": { type: "string" },
     "fail-on": { type: "string", default: "error" },
     lang: { type: "string" },
     json: { type: "boolean", default: false },
@@ -92,10 +98,25 @@ const config: Partial<Config> = {
   ...(llmsOnly ? { maxPages: 3, disable: rules.map((r) => r.id).filter((id) => !id.startsWith("E-") && id !== "G-1") } : {}),
 };
 
+if (values.seo && llmsOnly) fail("--seo does not combine with llms-txt");
+const maxLinks = values["max-links"] === undefined ? undefined : parsePages(values["max-links"]);
+if (maxLinks === null || maxLinks === "all") fail(`--max-links must be a whole number above 0, got «${values["max-links"]}»`);
+if (maxLinks && !values.seo) fail("--max-links works only with --seo");
+
+// --seo hands the whole run to search-auditor: it crawls once and runs its SEO checks and these AI checks.
+const seo = values.seo ? await loadSeo() : null;
+if (values.seo && !seo)
+  fail(
+    `--seo needs the ${SEO_PACKAGE} package. Install it next to this one (npm i -D ${SEO_PACKAGE}) ` +
+      `or run: npx -p ai-search-auditor -p ${SEO_PACKAGE} ai-search-auditor ${target} --seo`,
+  );
+
 const log = (line: string) => process.stderr.write(`· ${line}\n`);
-let report: Awaited<ReturnType<typeof audit>>;
+let report: Report;
 try {
-  report = await audit(url, { base: values.base, config, log });
+  report = seo
+    ? await seo.auditSearch(url, { base: values.base, config: { ...config, ...(maxLinks ? { maxLinks } : {}) }, log })
+    : await audit(url, { base: values.base, config, log });
 } catch (e) {
   fail((e as Error).message);
 }
