@@ -33,7 +33,7 @@ export async function fetchUrl(url: string, o: Origins, opts: FetchOptions = {})
       signal: AbortSignal.timeout(opts.timeoutMs ?? 15_000),
     });
     const body = await readCapped(res, opts.maxBytes ?? 5_000_000);
-    return { url: requested, publicUrl, status: res.status, headers: res.headers, body };
+    return { url: requested, publicUrl, status: res.status, headers: res.headers, body, finalUrl: toPublic(res.url || requested, o), redirected: res.redirected };
   } catch (e) {
     // fetch wraps network errors: the useful code (ECONNREFUSED, ENOTFOUND) sits in cause, or in cause.errors for IPv4+IPv6.
     const err = e as Error & { cause?: { code?: string; message?: string; errors?: { code?: string }[] } };

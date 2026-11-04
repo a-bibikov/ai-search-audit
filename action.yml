@@ -19,10 +19,13 @@ inputs:
     description: Report language, en (default) or ru
     required: false
     default: en
-  max-pages:
-    description: Pages to audit, sampled across templates
+  pages:
+    description: Pages to audit, a number sampled across templates or "all" for every page in the sitemap
     required: false
     default: "20"
+  max-pages:
+    description: Old name of pages, kept for existing workflows; when set, it is used instead of pages
+    required: false
 runs:
   using: composite
   steps:
@@ -31,10 +34,11 @@ runs:
         node-version: 22
     - shell: bash
       run: |
-        node "$GITHUB_ACTION_PATH/src/cli.ts" "$URL" ${BASE:+--base "$BASE"} --fail-on "$FAIL_ON" --max-pages "$MAX_PAGES" --lang "$LANG_CODE"
+        node "$GITHUB_ACTION_PATH/src/cli.ts" "$URL" ${BASE:+--base "$BASE"} --fail-on "$FAIL_ON" --pages "${MAX_PAGES:-$PAGES}" --lang "$LANG_CODE"
       env:
         URL: ${{ inputs.url }}
         BASE: ${{ inputs.base }}
         FAIL_ON: ${{ inputs.fail-on }}
+        PAGES: ${{ inputs.pages }}
         MAX_PAGES: ${{ inputs.max-pages }}
         LANG_CODE: ${{ inputs.lang }}

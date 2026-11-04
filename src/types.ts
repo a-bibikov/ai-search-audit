@@ -1,4 +1,4 @@
-import type { Lang, Messages, RuleId } from "./i18n/index.ts";
+import type { Lang, Messages } from "./i18n/index.ts";
 
 /** error: AI search cannot read the page or reads it wrong. warn: lowers the chance of a citation. info: a recommendation. */
 export type Level = "error" | "warn" | "info";
@@ -25,6 +25,9 @@ export interface Fetched {
   body: string;
   /** Network error or timeout, if the request did not complete. */
   error?: string;
+  /** Where the request ended after redirects, and whether there were any. */
+  finalUrl?: string;
+  redirected?: boolean;
 }
 
 export interface JsonLdNode {
@@ -58,6 +61,18 @@ export interface Page {
   headings: { level: number; text: string }[];
   /** Number of <details> elements. */
   details: number;
+  /** <html lang>, empty when missing. */
+  htmlLang: string;
+  /** <meta name="viewport"> content, empty when missing. */
+  viewport: string;
+  /** Every H1–H6 in document order. */
+  headingsAll: { level: number; text: string }[];
+  /** Absolute URLs of <a href> on the page (fragments dropped, mailto: and tel: left out). */
+  links: string[];
+  /** <img>: absolute src and alt (null when the attribute is missing, "" when empty). */
+  images: { src: string; alt: string | null }[];
+  /** Absolute URLs of resources the page loads: images, scripts, stylesheets, frames, media. */
+  resources: string[];
 }
 
 export interface Sitemap {
@@ -88,6 +103,8 @@ export interface Site {
   llmsLinks: { href: string; status: number }[];
   /** A feed found at a common address while no page declares one in <head> (rule A-5). */
   undeclaredFeed: string | null;
+  /** Sampled pages that did not answer 200 with HTML: errors, redirects to non-HTML, timeouts. */
+  failed: Fetched[];
 }
 
 export interface Config {
@@ -95,20 +112,24 @@ export interface Config {
   trainingBots: "allow" | "block" | "any";
   /** Rule ids to skip. */
   disable: string[];
-  maxPages: number;
+  /** Pages to audit: a number sampled across templates (default 20), or "all" for every page in the sitemap. */
+  maxPages: number | "all";
   /** Report language: en (default), ru. */
   lang: Lang;
 }
 
-/** A check. Its title and fix live in ../i18n per language; `run` writes messages through `t`. */
-export interface Rule {
-  id: RuleId;
-  group: Group;
+/**
+ * A check. Its title, fix and impact live in the rule set's texts per language; `run` writes messages through `t`.
+ * `M` is the rule set's message dictionary and `C` its config: other packages bring their own (see runRules).
+ */
+export interface Rule<M = Messages["m"], C = Config> {
+  id: string;
+  group: string;
   level: Level;
   /**
    * Why the check cannot run on this site («no articles among the audited pages», «no llms.txt»), or null when it can.
    * A check that does not apply is shown as «not checked» instead of a green tick.
    */
-  applies?(site: Site, t: Messages["m"]): string | null;
-  run(site: Site, config: Config, t: Messages["m"]): Finding[];
+  applies?(site: Site, t: M): string | null;
+  run(site: Site, config: C, t: M): Finding[];
 }
