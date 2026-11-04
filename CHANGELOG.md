@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.0](https://github.com/a-bibikov/ai-search-audit/compare/v0.2.0...v0.3.0) (2026-11-04)
+
+
+### New checks and features
+
+* open the engine for other rule sets, add --pages n|all ([#15](https://github.com/a-bibikov/ai-search-audit/issues/15)) ([#16](https://github.com/a-bibikov/ai-search-audit/issues/16)) ([4be3229](https://github.com/a-bibikov/ai-search-audit/commit/4be3229c4338fc932cd9e8f5b9a8e0a287e707d1))
+
 ## [0.2.0](https://github.com/a-bibikov/ai-search-audit/compare/v0.2.0...v0.2.0) (2026-11-03)
 
 
