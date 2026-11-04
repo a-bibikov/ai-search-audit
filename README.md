@@ -87,6 +87,9 @@ npx ai-search-auditor llms-txt https://example.com
 # Every page in the sitemap instead of a sample of 20
 npx ai-search-auditor https://example.com --pages all
 
+# Classic SEO checks too, in the same crawl and report (needs search-auditor, see below)
+npx -p ai-search-auditor -p search-auditor ai-search-auditor https://example.com --seo
+
 # Report in Russian (English is the default)
 npx ai-search-auditor https://example.com --lang ru
 
@@ -98,6 +101,8 @@ npx ai-search-auditor https://example.com --json --out report.json
 |---|---|
 | `--base <url>` | Public origin when auditing a local build |
 | `--pages <n\|all>` | Pages to audit: a number sampled across templates (default 20), or `all` for every page in the sitemap. The old `--max-pages` still works |
+| `--seo` | Also run the classic SEO checks of [search-auditor](https://github.com/a-bibikov/search-auditor) |
+| `--max-links <n>` | With `--seo`: internal links to request (default 100) |
 | `--fail-on <level>` | Exit 1 on `error` (default), `warn` or `never` |
 | `--lang <lang>` | Report language: `en` (default), `ru` |
 | `--json` | JSON instead of Markdown |
@@ -118,6 +123,19 @@ Config:
 `maxPages`: a number or `"all"`.
 
 `trainingBots`: `allow`, `block` or `any` — whether GPTBot, ClaudeBot, CCBot and others may collect data for training. Blocking them does not remove you from AI search; blocking search agents does.
+
+## Classic SEO in the same report
+
+`--seo` adds 24 classic search checks — status codes, canonical, sitemap, titles and descriptions, headings, broken links, images, hreflang, HTTPS — from [search-auditor](https://github.com/a-bibikov/search-auditor). The site is crawled once; the report shows a score for classic search, one for AI search and the overall score.
+
+search-auditor is an optional peer dependency, so `ai-search-auditor` alone still installs nothing else. Put it next to this package:
+
+```bash
+npm i -D ai-search-auditor search-auditor
+npx ai-search-auditor https://example.com --seo
+```
+
+Without it, `--seo` stops with the command to install it. Running `npx search-auditor` gives the same report.
 
 ## As a library
 
@@ -142,6 +160,7 @@ The engine is open to other rule sets: `crawl` a site once, `runRules` with your
     fail-on: error
     lang: en
     pages: all
+    seo: true
 ```
 
 The report goes to the job summary.

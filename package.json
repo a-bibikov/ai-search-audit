@@ -49,6 +49,14 @@
     "build": "rm -rf dist && tsc -p tsconfig.build.json",
     "prepublishOnly": "npm run typecheck && npm test && npm run build"
   },
+  "peerDependencies": {
+    "search-auditor": ">=0.1.0 <1"
+  },
+  "peerDependenciesMeta": {
+    "search-auditor": {
+      "optional": true
+    }
+  },
   "devDependencies": {
     "@types/node": "^22.18.0",
     "typescript": "^5.9.0"
