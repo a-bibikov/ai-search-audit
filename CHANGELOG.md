@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.0](https://github.com/a-bibikov/ai-search-audit/compare/v0.3.0...v0.4.0) (2026-11-04)
+
+
+### New checks and features
+
+* --seo runs the classic SEO checks of search-auditor in the same crawl ([#18](https://github.com/a-bibikov/ai-search-audit/issues/18)) ([8f6ed94](https://github.com/a-bibikov/ai-search-audit/commit/8f6ed949f37064d25be60971895c540115cceeed))
+
 ## [0.3.0](https://github.com/a-bibikov/ai-search-audit/compare/v0.2.0...v0.3.0) (2026-11-04)
 
 
