@@ -85,6 +85,25 @@ export function parsePage(fetched: Fetched): Page {
   const h1Html = blocks(shown, "h1");
   const text = visibleText(body);
   const title = textContent(blocks(head, "title")[0] ?? "");
+  const abs = (href: string | undefined) => {
+    if (!href) return "";
+    try {
+      return new URL(href.trim(), fetched.publicUrl).href.replace(/#.*$/, "");
+    } catch {
+      return "";
+    }
+  };
+  const anchors = tags(body, "a")
+    .map((a) => a.href ?? "")
+    .filter((h) => h && !/^(mailto|tel|javascript|data):/i.test(h.trim()) && !h.trim().startsWith("#"))
+    .map(abs)
+    .filter(Boolean);
+  const imgs = tags(body, "img").map((i) => ({ src: abs(i.src ?? i["data-src"]), alt: "alt" in i ? (i.alt ?? "") : null }));
+  const resources = [
+    ...imgs.map((i) => i.src),
+    ...["script", "iframe", "source", "video", "audio"].flatMap((name) => tags(html, name).map((x) => abs(x.src))),
+    ...links.filter((l) => /stylesheet|preload|icon/i.test(l.rel ?? "")).map((l) => abs(l.href)),
+  ].filter(Boolean);
 
   return {
     fetched,
@@ -104,5 +123,11 @@ export function parsePage(fetched: Fetched): Page {
     headings: [...shown.matchAll(/<h([23])\b[^>]*>([\s\S]*?)<\/h\1>/gi)].map((m) => ({ level: Number(m[1]), text: textContent(m[2] ?? "") })),
     details: (shown.match(/<details\b/gi) ?? []).length,
     rss: links.filter((l) => l.rel?.toLowerCase() === "alternate" && /rss|atom/i.test(l.type ?? "")).map((l) => l.href ?? ""),
+    htmlLang: attrs(html.match(/<html\b[^>]*>/i)?.[0] ?? "<html>").lang ?? "",
+    viewport: metaContent("viewport"),
+    headingsAll: [...shown.matchAll(/<h([1-6])\b[^>]*>([\s\S]*?)<\/h\1>/gi)].map((m) => ({ level: Number(m[1]), text: textContent(m[2] ?? "") })),
+    links: [...new Set(anchors)],
+    images: imgs,
+    resources: [...new Set(resources)],
   };
 }

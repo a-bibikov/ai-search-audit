@@ -1,7 +1,7 @@
 import { messages } from "./i18n/index.ts";
 import type { Report } from "./index.ts";
 import { pagesOf, penaltyOf } from "./score.ts";
-import type { Group, Level } from "./types.ts";
+import type { Level } from "./types.ts";
 
 const ICON: Record<Level, string> = { error: "✖", warn: "⚠", info: "ℹ" };
 const ORDER: Record<Level, number> = { error: 0, warn: 1, info: 2 };
@@ -10,7 +10,8 @@ const MAX_PRIORITIES = 3;
 
 /** Markdown report for a terminal, a PR summary or a file, in the report's language. */
 export function toMarkdown(r: Report): string {
-  const t = messages(r.lang).report;
+  const t = { ...messages(r.lang).report, ...r.chrome };
+  const groups: Record<string, string> = r.groups ?? t.groups;
   const short = (where: string) => (where === "site" ? t.site : where.startsWith(r.site) ? where.slice(r.site.length) || "/" : where);
   const lines: string[] = [
     `# ${t.title(r.site)}`,
@@ -18,6 +19,10 @@ export function toMarkdown(r: Report): string {
     t.summary({ score: r.score, grade: r.grade, checked: r.checked, total: r.total, errors: r.counts.error, warnings: r.counts.warn, notes: r.counts.info, pages: r.pages.length }),
     "",
   ];
+  if (r.sections?.length) {
+    for (const s of r.sections) lines.push(t.section(s));
+    lines.push("");
+  }
   if (r.capped) lines.push(t.capped(r.checked, r.total), "");
 
   const byRule = new Map<string, Report["findings"]>();
@@ -50,10 +55,10 @@ export function toMarkdown(r: Report): string {
 
   // Every audited check by group, as in the README: what is fine and what is not, at a glance.
   lines.push(`## ${t.checklist}`, "", t.legend, "");
-  for (const g of Object.keys(t.groups) as Group[]) {
+  for (const g of Object.keys(groups)) {
     const list = r.rules.filter((rule) => rule.group === g).sort((a, b) => a.id.localeCompare(b.id, "en", { numeric: true }));
     if (!list.length) continue;
-    lines.push(`**${g}. ${t.groups[g]}**`, "");
+    lines.push(`**${g}. ${groups[g]}**`, "");
     for (const rule of list) {
       if (rule.skipped) {
         lines.push(`- – ${rule.id} ${rule.title} — ${t.notChecked}: ${rule.skipped}`);
@@ -73,7 +78,7 @@ export function toMarkdown(r: Report): string {
     "",
     t.footer(r.pages.length, r.checkedAt.slice(0, 10)),
     "",
-    "[ai-search-audit](https://github.com/a-bibikov/ai-search-audit)",
+    `[${r.tool?.name ?? "ai-search-audit"}](${r.tool?.url ?? "https://github.com/a-bibikov/ai-search-audit"})`,
     "",
   );
   return lines.join("\n");

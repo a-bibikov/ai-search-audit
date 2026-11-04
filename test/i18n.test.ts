@@ -14,7 +14,7 @@ describe("languages", () => {
   });
 
   it("every rule has a title and a fix in every language", () => {
-    for (const t of Object.values(LANGS)) for (const r of rules) assert.ok(t.rules[r.id].title && t.rules[r.id].fix, r.id);
+    for (const t of Object.values(LANGS)) for (const r of rules) assert.ok(t.rules[r.id as keyof typeof t.rules].title && t.rules[r.id as keyof typeof t.rules].fix, r.id);
   });
 
   it("Russian is translated, not copied", () => {

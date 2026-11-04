@@ -8,6 +8,7 @@ export const ru: Messages = {
       `**${o.score}/100 (${o.grade})** · проверено: ${o.checked} из ${o.total} · ошибок: ${o.errors} · предупреждений: ${o.warnings} · заметок: ${o.notes} · страниц: ${o.pages}`,
     capped: (checked: number, total: number) => `Оценка ограничена B: на этом сайте удалось выполнить только ${checked} проверок из ${total}.`,
     priorities: "Что сделать в первую очередь",
+    section: (o) => `- **${o.name}:** ${o.score}/100 (${o.grade}) · проверено: ${o.checked} из ${o.total}`,
     scale: (n: number, total: number) => `страниц: ${n} из ${total}`,
     clean: "Исправлять нечего: AI-поиск может прочитать, понять и процитировать эти страницы.",
     fix: "Как исправить",

@@ -6,7 +6,8 @@ import { markdownLinks, parseSitemap } from "./sitemap.ts";
 import type { Fetched, Page, Site, Sitemap } from "./types.ts";
 
 export interface CrawlOptions {
-  maxPages: number;
+  /** A number sampled across templates, or "all" for every page in the sitemap. */
+  maxPages: number | "all";
   /** Explicit page list instead of the sitemap. */
   urls?: string[];
   concurrency?: number;
@@ -14,6 +15,16 @@ export interface CrawlOptions {
 }
 
 const origin = (url: string) => new URL(url).origin;
+
+/**
+ * Reads a page limit from a flag or a config file: "all", or a whole number above 0 ("5", 5).
+ * Returns null for anything else, so the caller can say what is wrong before any request is made.
+ */
+export function parsePages(value: unknown): number | "all" | null {
+  if (typeof value === "string" && value.trim().toLowerCase() === "all") return "all";
+  const n = typeof value === "number" ? value : typeof value === "string" && /^\s*\d+\s*$/.test(value) ? Number(value) : NaN;
+  return Number.isInteger(n) && n > 0 ? n : null;
+}
 
 /**
  * Picks pages so that every template is seen: URLs grouped by their path with the last segment masked
@@ -93,7 +104,7 @@ export async function crawl(targetInput: string, baseInput: string | undefined, 
 
   const home = `${base}/`;
   const candidates = opts.urls ?? sitemap?.urls.map((u) => u.loc).filter((u) => isSameSite(u, o)) ?? [];
-  const list = pickPages(home, candidates.map((u) => toPublic(u, o)), opts.maxPages);
+  const list = pickPages(home, candidates.map((u) => toPublic(u, o)), opts.maxPages === "all" ? Infinity : opts.maxPages);
   log(`${list.length} pages`);
   const fetched = await pool(list, conc, (u) => fetchUrl(u, o));
   const pages: Page[] = fetched.filter(isHtml).map(parsePage);
@@ -123,7 +134,7 @@ export async function crawl(targetInput: string, baseInput: string | undefined, 
     undeclaredFeed = probes.find((f) => f.status === 200 && /<(rss|feed)\b/i.test(f.body.slice(0, 2000)))?.publicUrl ?? null;
   }
 
-  return { target, base, robots, sitemap, pages, llms: llms.status === 200 ? llms : null, llmsAttempt: llms, llmsFull: llmsFull.status === 200 ? llmsFull : null, feeds, asAgents, llmsLinks, undeclaredFeed };
+  return { target, base, robots, sitemap, pages, llms: llms.status === 200 ? llms : null, llmsAttempt: llms, failed, llmsFull: llmsFull.status === 200 ? llmsFull : null, feeds, asAgents, llmsLinks, undeclaredFeed };
 }
 
 const p0 = (pages: Page[], base: string) => pages[0]?.fetched.publicUrl ?? base;

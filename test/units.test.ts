@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { pickPages } from "../src/crawl.ts";
+import { parsePages, pickPages } from "../src/crawl.ts";
 import { parseRobots } from "../src/robots.ts";
 import { scoreOf } from "../src/score.ts";
 
@@ -71,5 +71,24 @@ describe("pickPages on sites with city copies", () => {
     const o = "https://shop.test";
     const picked = pickPages(`${o}/`, [`${o}/a/x`, `${o}/b/x`, `${o}/c/x`], 10);
     assert.deepEqual(picked, [`${o}/`, `${o}/a/x`, `${o}/b/x`, `${o}/c/x`]);
+  });
+});
+
+describe("page limit", () => {
+  it("reads a number or «all»", () => {
+    assert.equal(parsePages("5"), 5);
+    assert.equal(parsePages(20), 20);
+    assert.equal(parsePages("all"), "all");
+    assert.equal(parsePages(" ALL "), "all");
+  });
+
+  it("refuses anything else", () => {
+    for (const v of ["0", "-3", "2.5", "five", "", 0, 1.5, null, undefined]) assert.equal(parsePages(v), null, String(v));
+  });
+
+  it("«all» takes every page, copies included", () => {
+    const o = "https://x.test";
+    const urls = Array.from({ length: 30 }, (_, i) => `${o}/city-${i}/prices`);
+    assert.equal(pickPages(`${o}/`, urls, Infinity).length, 31);
   });
 });

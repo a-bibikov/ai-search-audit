@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { existsSync, readFileSync, writeFileSync, appendFileSync } from "node:fs";
 import { parseArgs } from "node:util";
-import { DEFAULT_LANG, LANGS, audit, isLang, rules, toMarkdown, type Config } from "./index.ts";
+import { DEFAULT_LANG, LANGS, audit, isLang, parsePages, rules, toMarkdown, type Config } from "./index.ts";
 
 // package.json sits one level up both from src/cli.ts (development) and dist/cli.js (published package).
 const { version } = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8")) as { version: string };
@@ -17,7 +17,7 @@ Usage:
 
 Options:
   --base <url>        public origin when auditing a local build (links in sitemap point there)
-  --max-pages <n>     pages to audit, sampled across templates (default 20)
+  --pages <n|all>     pages to audit: a number sampled across templates (default 20), or all pages in the sitemap
   --fail-on <level>   exit 1 on: error (default), warn, never
   --lang <lang>       report language: ${Object.keys(LANGS).join(", ")} (default ${DEFAULT_LANG})
   --json              print the JSON report instead of Markdown
@@ -29,13 +29,18 @@ Options:
 Examples:
   npx ai-search-auditor https://example.com
   npx ai-search-auditor http://127.0.0.1:3000 --base https://example.com --fail-on warn
-  npx ai-search-auditor https://example.com --lang ru
+  npx ai-search-auditor https://example.com --lang ru --pages all
 `;
 
-const { values, positionals } = parseArgs({
+// An unknown or malformed flag gets one line with the help hint, not a stack trace.
+let parsed;
+try {
+  parsed = parseArgs({
   allowPositionals: true,
   options: {
     base: { type: "string" },
+    pages: { type: "string" },
+    // The old name of --pages, kept so existing scripts and workflows keep working.
     "max-pages": { type: "string" },
     "fail-on": { type: "string", default: "error" },
     lang: { type: "string" },
@@ -46,6 +51,11 @@ const { values, positionals } = parseArgs({
     version: { type: "boolean", short: "v", default: false },
   },
 });
+} catch (e) {
+  process.stderr.write(`ai-search-audit: ${(e as Error).message.split(". To specify")[0]}\nRun with --help to see the options.\n`);
+  process.exit(2);
+}
+const { values, positionals } = parsed;
 
 if (values.version) {
   process.stdout.write(`${version}\n`);
@@ -71,10 +81,14 @@ const fileConfig: Partial<Config> = configPath ? JSON.parse(readFileSync(configP
 // --lang wins over the config file; an unknown language stops before any request is made.
 const lang = values.lang ?? fileConfig.lang ?? DEFAULT_LANG;
 if (!isLang(lang)) fail(`unknown language «${lang}», use one of: ${Object.keys(LANGS).join(", ")}`);
+const pagesFlag = values.pages ?? values["max-pages"];
+const pagesRaw = pagesFlag ?? fileConfig.maxPages;
+const maxPages = pagesRaw === undefined ? undefined : parsePages(pagesRaw);
+if (maxPages === null) fail(`${pagesFlag !== undefined ? "--pages" : "maxPages in the config"} must be a whole number above 0 or «all», got «${pagesRaw}»`);
 const config: Partial<Config> = {
   ...fileConfig,
   lang: lang as Config["lang"],
-  ...(values["max-pages"] ? { maxPages: Number(values["max-pages"]) } : {}),
+  ...(maxPages ? { maxPages } : {}),
   ...(llmsOnly ? { maxPages: 3, disable: rules.map((r) => r.id).filter((id) => !id.startsWith("E-") && id !== "G-1") } : {}),
 };
 

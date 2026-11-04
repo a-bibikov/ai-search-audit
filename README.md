@@ -84,6 +84,9 @@ npx ai-search-auditor http://127.0.0.1:3000 --base https://example.com
 # Only llms.txt and llms-full.txt
 npx ai-search-auditor llms-txt https://example.com
 
+# Every page in the sitemap instead of a sample of 20
+npx ai-search-auditor https://example.com --pages all
+
 # Report in Russian (English is the default)
 npx ai-search-auditor https://example.com --lang ru
 
@@ -94,7 +97,7 @@ npx ai-search-auditor https://example.com --json --out report.json
 | Option | |
 |---|---|
 | `--base <url>` | Public origin when auditing a local build |
-| `--max-pages <n>` | Pages to audit, sampled across templates (default 20) |
+| `--pages <n\|all>` | Pages to audit: a number sampled across templates (default 20), or `all` for every page in the sitemap. The old `--max-pages` still works |
 | `--fail-on <level>` | Exit 1 on `error` (default), `warn` or `never` |
 | `--lang <lang>` | Report language: `en` (default), `ru` |
 | `--json` | JSON instead of Markdown |
@@ -112,7 +115,21 @@ Config:
 }
 ```
 
+`maxPages`: a number or `"all"`.
+
 `trainingBots`: `allow`, `block` or `any` — whether GPTBot, ClaudeBot, CCBot and others may collect data for training. Blocking them does not remove you from AI search; blocking search agents does.
+
+## As a library
+
+```js
+import { audit, toMarkdown } from "ai-search-auditor";
+
+const report = await audit("https://example.com", { config: { lang: "en", maxPages: 20 } });
+console.log(report.score, report.grade);
+console.log(toMarkdown(report));
+```
+
+The engine is open to other rule sets: `crawl` a site once, `runRules` with your own rules and texts, `scoreOf` and `toMarkdown` with your own groups and section scores. [search-auditor](https://github.com/a-bibikov/search-auditor) uses it to put classic SEO and AI search in one report.
 
 ## GitHub Action
 
@@ -124,6 +141,7 @@ Config:
     base: https://example.com
     fail-on: error
     lang: en
+    pages: all
 ```
 
 The report goes to the job summary.
