@@ -2,7 +2,16 @@
 
 ## Checks
 
-A new check is one rule in `src/rules/` plus its title, fix and messages in every language in `src/i18n/`. It ships with two tests: a site where it must fire and one where it must stay silent (`test/`). `npm test` must pass.
+A check is one file in the folder of its group — `src/rules/bot/bot-3.ts` for BOT-3 — plus its title, short action (`todo`), fix, impact and messages in every language in `src/i18n/`.
+
+```
+src/rules/bot/
+  index.ts    what the group checks, and the list of its checks in order
+  shared.ts   helpers several checks of the group use
+  bot-1.ts    one check per file, starting with its id and title
+```
+
+A new check takes the next free number in its group and goes into the group's `index.ts` list. It ships with two tests: a site where it must fire and one where it must stay silent (`test/`). `npm test` must pass.
 
 This package checks AI search only; a classic SEO check belongs in [search-auditor](https://github.com/a-bibikov/search-auditor). The crawl, the HTML parser, the scoring and the report live in [auditor-engine](https://github.com/a-bibikov/auditor-engine): a change there is released first, then the `auditor-engine` range here is raised.
 
@@ -12,8 +21,8 @@ All work goes to `dev` through pull requests. The branch name sets the release t
 
 | Branch | Example | PR title becomes | Release |
 |---|---|---|---|
-| `feat/…` | `feat/A-12-soft-404` | `feat: …` | minor (0.1 → 0.2) |
-| `fix/…` | `fix/B-3-br-in-headings` | `fix: …` | patch (0.1.0 → 0.1.1) |
+| `feat/…` | `feat/BOT-12-soft-404` | `feat: …` | minor (0.1 → 0.2) |
+| `fix/…` | `fix/TXT-3-br-in-headings` | `fix: …` | patch (0.1.0 → 0.1.1) |
 | `docs/…` | `docs/roadmap` | `docs: …` | patch |
 | `chore/…`, `ci/…`, `test/…`, `refactor/…`, `perf/…` | `ci/node-26` | `chore: …` and so on | no release (`perf` — patch) |
 

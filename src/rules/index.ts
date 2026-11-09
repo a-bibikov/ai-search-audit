@@ -1,7 +1,11 @@
 import type { Rule } from "../types.ts";
-import { accessRules } from "./access.ts";
-import { contentRules } from "./content.ts";
-import { entityRules } from "./entities.ts";
-import { textRules } from "./text.ts";
+import { botRules } from "./bot/index.ts";
+import { txtRules } from "./txt/index.ts";
+import { entRules } from "./ent/index.ts";
+import { ansRules } from "./ans/index.ts";
+import { llmRules } from "./llm/index.ts";
+import { updRules } from "./upd/index.ts";
+import { safRules } from "./saf/index.ts";
 
-export const rules: Rule[] = [...accessRules, ...textRules, ...entityRules, ...contentRules].sort((a, b) => a.id.localeCompare(b.id, "en", { numeric: true }));
+/** The checks in checklist order: one folder per group, one file per check. */
+export const rules: Rule[] = [...botRules, ...txtRules, ...entRules, ...ansRules, ...llmRules, ...updRules, ...safRules];
