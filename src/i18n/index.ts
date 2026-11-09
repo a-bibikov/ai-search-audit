@@ -1,12 +1,10 @@
+import { LANGS as REPORT_LANGS, type Lang } from "auditor-engine";
 import { en, type Messages, type RuleId } from "./en.ts";
 import { ru } from "./ru.ts";
 
-export type { Messages, RuleId };
+export type { Messages, RuleId, Lang };
+export { DEFAULT_LANG, isLang } from "auditor-engine";
 
-/** Report languages. English is the default; to add one, write ./<lang>.ts typed as Messages and list it here. */
-export const LANGS = { en, ru } satisfies Record<string, Messages>;
-export type Lang = keyof typeof LANGS;
-export const DEFAULT_LANG: Lang = "en";
-
-export const isLang = (value: unknown): value is Lang => typeof value === "string" && Object.hasOwn(LANGS, value);
-export const messages = (lang: Lang = DEFAULT_LANG): Messages => LANGS[lang];
+/** Texts of the AI search checks in every report language of auditor-engine: TypeScript names a missing one. */
+export const LANGS = { en, ru } satisfies Record<keyof typeof REPORT_LANGS, Messages>;
+export const messages = (lang: Lang = "en"): Messages => LANGS[lang];

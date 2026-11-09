@@ -1,5 +1,7 @@
-import { types } from "../html.ts";
-import type { Finding, JsonLdNode, Level, Page, Rule } from "../types.ts";
+import { jsonLdTypes as types } from "auditor-engine";
+import type { JsonLdNode, Page } from "../types.ts";
+
+export { finder } from "auditor-engine";
 
 export const ARTICLE_TYPES = ["Article", "BlogPosting", "NewsArticle", "TechArticle", "Report", "ScholarlyArticle"];
 export const ENTITY_TYPES = ["Person", "Organization", "Corporation", "LocalBusiness", "EducationalOrganization", "NGO"];
@@ -9,13 +11,6 @@ export const articleNode = (page: Page) => page.jsonLd.find((n) => isA(n, ARTICL
 export const isArticle = (page: Page) => Boolean(articleNode(page));
 
 export const str = (v: unknown): string => (typeof v === "string" ? v : "");
-
-/** Builds findings for one rule; the level defaults to the rule's own. */
-export const finder = (rule: Pick<Rule, "id" | "level">) => {
-  const out: Finding[] = [];
-  const add = (where: string, message: string, level: Level = rule.level) => out.push({ rule: rule.id, level, where, message });
-  return { out, add };
-};
 
 /** Every string inside a JSON-LD value. */
 export const strings = (v: unknown, out: string[] = []): string[] => {
@@ -34,3 +29,6 @@ export const quote = (s: string, max = 70) => {
 /** Characters that are invisible but split a word for exact matching: word joiner, zero-width space, BOM, soft hyphen. */
 export const INVISIBLE = /[\u2060\u200B\uFEFF\u00AD]/;
 export const INVISIBLE_G = /[\u2060\u200B\uFEFF\u00AD]/g;
+
+/** Link targets in Markdown, as in llms.txt: [title](url). */
+export const markdownLinks = (text: string) => [...text.matchAll(/\[[^\]]*\]\((\S+?)\)/g)].map((m) => m[1]!);
