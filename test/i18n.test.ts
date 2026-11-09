@@ -59,7 +59,7 @@ describe("report language", () => {
     assert.match(md, /ошибок: \d+ · предупреждений: \d+/);
     assert.match(md, /H1 читается как «AdaEngineer»/);
     assert.match(md, /## Рекомендации/);
-    assert.match(md, /\| B-3 +\| ⚠ предупреждение \| \*\*Поставьте пробел между частями заголовка\.\*\*/);
+    assert.match(md, /\| TXT-3 +\| ⚠ предупреждение \| \*\*Поставьте пробел между частями заголовка\.\*\*/);
     assert.doesNotMatch(md, /H1 reads as|What to do|Passed/);
   });
 });

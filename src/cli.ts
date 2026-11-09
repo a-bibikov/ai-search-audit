@@ -99,7 +99,7 @@ const config: Partial<Config> = {
   ...fileConfig,
   lang: lang as Config["lang"],
   ...(maxPages ? { maxPages } : {}),
-  ...(llmsOnly ? { maxPages: 3, disable: rules.map((r) => r.id).filter((id) => !id.startsWith("E-") && id !== "G-1") } : {}),
+  ...(llmsOnly ? { maxPages: 3, disable: rules.map((r) => r.id).filter((id) => !id.startsWith("LLM-") && id !== "SAF-1") } : {}),
 };
 
 const log = (line: string) => process.stderr.write(`· ${line}\n`);
