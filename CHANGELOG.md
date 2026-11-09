@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.5.0](https://github.com/a-bibikov/ai-search-audit/compare/v0.4.0...v0.5.0) (2026-11-09)
+
+
+### ⚠ BREAKING CHANGES
+
+* --seo is removed, classic SEO checks live in search-auditor
+* the crawl, scoring and report come from auditor-engine and are no longer exported here
+* check AI search only, on auditor-engine
+
+### New checks and features
+
+* --seo is removed, classic SEO checks live in search-auditor ([ed55de1](https://github.com/a-bibikov/ai-search-audit/commit/ed55de1f829ccd08da0729605a8d6d9756000d82))
+* check AI search only, on auditor-engine ([ed55de1](https://github.com/a-bibikov/ai-search-audit/commit/ed55de1f829ccd08da0729605a8d6d9756000d82))
+* JSON findings carry the check title, why it is a problem and how to fix it ([ed55de1](https://github.com/a-bibikov/ai-search-audit/commit/ed55de1f829ccd08da0729605a8d6d9756000d82))
+* report with a table per group, one recommendations table and --width for the terminal ([ed55de1](https://github.com/a-bibikov/ai-search-audit/commit/ed55de1f829ccd08da0729605a8d6d9756000d82))
+* the crawl, scoring and report come from auditor-engine and are no longer exported here ([ed55de1](https://github.com/a-bibikov/ai-search-audit/commit/ed55de1f829ccd08da0729605a8d6d9756000d82))
+
 ## [0.4.0](https://github.com/a-bibikov/ai-search-audit/compare/v0.3.0...v0.4.0) (2026-11-04)
 
 
