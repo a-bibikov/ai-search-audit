@@ -3,8 +3,8 @@ import type { Messages } from "./i18n/index.ts";
 
 export type { Fetched, Finding, JsonLdNode, Level, Page, Robots, Sitemap } from "auditor-engine";
 
-/** A: access, B: text without JS, C: entities, D: answer first, E: machine-readable versions, F: freshness, G: content safety. */
-export type Group = "A" | "B" | "C" | "D" | "E" | "F" | "G";
+/** BOT: access for AI agents, TXT: text without JS, ENT: entities, ANS: answer first, LLM: llms.txt, UPD: freshness, SAF: content safety. */
+export type Group = "BOT" | "TXT" | "ENT" | "ANS" | "LLM" | "UPD" | "SAF";
 
 /** What the AI search checks request on top of the crawl. */
 export interface AiExtras {
@@ -13,11 +13,19 @@ export interface AiExtras {
   llmsAttempt: Fetched;
   llmsFull: Fetched | null;
   feeds: Fetched[];
-  /** Same page fetched with each AI user agent (rule A-3). */
+  /** Home page fetched as each AI search and user agent (rule BOT-3). */
   asAgents: { agent: string; fetched: Fetched }[];
-  /** Status of every same-site link listed in llms.txt (rule E-2). */
+  /** Status of every same-site link listed in llms.txt (rule LLM-2). */
   llmsLinks: { href: string; status: number }[];
-  /** A feed found at a common address while no page declares one in <head> (rule A-5). */
+  /** robots.txt as an AI search agent gets it: a CDN can answer bots differently (rule BOT-7). */
+  robotsAsAgent: Fetched;
+  /** An address that cannot exist, to see whether missing pages answer 404 (rule BOT-11). */
+  missingPage: Fetched;
+  /** Same-site PDFs linked from the audited pages: whether each has a text layer (rule TXT-7); null when unknown. */
+  pdfs: { url: string; status: number; text: boolean | null }[];
+  /** Markdown versions of a few audited pages: declared with rel="alternate" or found at the address plus «.md» (rule LLM-5). */
+  markdown: { page: string; url: string; status: number; declared: boolean; ok: boolean }[];
+  /** A feed found at a common address while no page declares one in <head> (rule BOT-5). */
   undeclaredFeed: string | null;
 }
 
