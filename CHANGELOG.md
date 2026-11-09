@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.6.0](https://github.com/a-bibikov/ai-search-audit/compare/v0.5.0...v0.6.0) (2026-11-09)
+
+
+### ⚠ BREAKING CHANGES
+
+* 56 GEO checks in groups with three-letter codes ([#24](https://github.com/a-bibikov/ai-search-audit/issues/24))
+
+### New checks and features
+
+* 56 GEO checks in groups with three-letter codes ([#24](https://github.com/a-bibikov/ai-search-audit/issues/24)) ([76ab4ca](https://github.com/a-bibikov/ai-search-audit/commit/76ab4caf7699c2e92222fd9fcd8ad4dd84ef7e1b))
+
 ## [0.5.0](https://github.com/a-bibikov/ai-search-audit/compare/v0.4.0...v0.5.0) (2026-11-09)
 
 
