@@ -1,7 +1,6 @@
-import { countWords } from "../html.ts";
-import { markdownLinks } from "../sitemap.ts";
+import { countWords } from "auditor-engine";
 import type { Rule, Site } from "../types.ts";
-import { articleNode, finder, isArticle, quote, str } from "./util.ts";
+import { articleNode, finder, isArticle, markdownLinks, quote, str } from "./util.ts";
 
 const FILLER = /^(in this (article|post|guide)|this (article|post) (will|is about)|today we|welcome to|в этой статье|в этом посте|сегодня мы|сегодня расскажу|давайте разберёмся)/i;
 

@@ -68,7 +68,19 @@ Gaps in the numbering are taken by the checks on the [roadmap](#roadmap).
 
 Levels: `error` — AI search cannot read the page or reads it wrong; `warn` — lowers the chance of a citation; `info` — a recommendation.
 
-The report opens with what to do first — the three changes worth the most, in plain words and with how many pages they touch — then lists the findings with fixes, and ends with a checklist of every check by group: ✓ OK, ✖ error, ⚠ warning, ℹ note, – not checked. A check that cannot run on a site — articles on a site without articles, `llms.txt` links when there is no `llms.txt` — is marked «not checked» with the reason, never as passed.
+The report opens with what to do first — the three changes worth the most, in plain words and with how many pages they touch. Then a table per group with every check: ✓ OK, ✖ error, ⚠ warning, ℹ note, – not checked, and what was found. It ends with one table of recommendations in checklist order, group by group: the check, its severity, what to do, and a comment on what was found where. Tables are padded, so they read as tables in a terminal and render as tables on GitHub. A check that cannot run on a site — articles on a site without articles, `llms.txt` links when there is no `llms.txt` — is marked «not checked» with the reason, never as passed.
+
+```
+### B. Text without JavaScript
+
+2 of 3 OK
+
+|     | Check                                                               | Result                       |
+|-----|---------------------------------------------------------------------|------------------------------|
+| ⚠   | B-1 The text is in the HTML, not only in JavaScript                 | 2 warnings · on 2 of 3 pages |
+| ✓   | B-2 No invisible characters inside words in machine-readable output | OK                           |
+| ✓   | B-3 Headings do not glue words together                             | OK                           |
+```
 
 **Score:** 100 minus 15 for each check with an error and 5 for each check with a warning; a warning that covers at least half of the audited pages costs 10. A check counts once, not per page, so one template bug does not sink a large site. A ≥ 90, B ≥ 80, C ≥ 70, D ≥ 60, F below. The summary says how many checks could run on the site; if fewer than two thirds did, the grade is capped at B.
 
@@ -87,8 +99,6 @@ npx ai-search-auditor llms-txt https://example.com
 # Every page in the sitemap instead of a sample of 20
 npx ai-search-auditor https://example.com --pages all
 
-# Classic SEO checks too, in the same crawl and report (needs search-auditor, see below)
-npx -p ai-search-auditor -p search-auditor ai-search-auditor https://example.com --seo
 
 # Report in Russian (English is the default)
 npx ai-search-auditor https://example.com --lang ru
@@ -101,11 +111,10 @@ npx ai-search-auditor https://example.com --json --out report.json
 |---|---|
 | `--base <url>` | Public origin when auditing a local build |
 | `--pages <n\|all>` | Pages to audit: a number sampled across templates (default 20), or `all` for every page in the sitemap. The old `--max-pages` still works |
-| `--seo` | Also run the classic SEO checks of [search-auditor](https://github.com/a-bibikov/search-auditor) |
-| `--max-links <n>` | With `--seo`: internal links to request (default 100) |
 | `--fail-on <level>` | Exit 1 on `error` (default), `warn` or `never` |
 | `--lang <lang>` | Report language: `en` (default), `ru` |
-| `--json` | JSON instead of Markdown |
+| `--width <n>` | Fit tables into n characters; long cells wrap inside their column. Default: the terminal width in a terminal, plain Markdown in a file or a pipe; `0` turns wrapping off |
+| `--json` | JSON instead of Markdown: every finding with its check `title`, the `message`, `why` it is a problem and how to `fix` it, and every check with its `status` (`ok`, `error`, `warn`, `info`, `skipped`), `counts`, `pages` (audited pages with a finding) and `addresses` (other addresses with one) |
 | `--out <file>` | Also write the report to a file |
 | `--config <file>` | Config file (default `ai-search-audit.config.json`) |
 
@@ -124,18 +133,13 @@ Config:
 
 `trainingBots`: `allow`, `block` or `any` — whether GPTBot, ClaudeBot, CCBot and others may collect data for training. Blocking them does not remove you from AI search; blocking search agents does.
 
-## Classic SEO in the same report
+## Classic SEO
 
-`--seo` adds 24 classic search checks — status codes, canonical, sitemap, titles and descriptions, headings, broken links, images, hreflang, HTTPS — from [search-auditor](https://github.com/a-bibikov/search-auditor). The site is crawled once; the report shows a score for classic search, one for AI search and the overall score.
-
-search-auditor is an optional peer dependency, so `ai-search-auditor` alone still installs nothing else. Put it next to this package:
+This package checks only AI search. Status codes, canonical, sitemap, titles, headings, broken links, hreflang and HTTPS are checked by [search-auditor](https://github.com/a-bibikov/search-auditor). Both run on [auditor-engine](https://github.com/a-bibikov/auditor-engine), so the reports look the same:
 
 ```bash
-npm i -D ai-search-auditor search-auditor
-npx ai-search-auditor https://example.com --seo
+npx search-auditor https://example.com
 ```
-
-Without it, `--seo` stops with the command to install it. Running `npx search-auditor` gives the same report.
 
 ## As a library
 
@@ -147,7 +151,7 @@ console.log(report.score, report.grade);
 console.log(toMarkdown(report));
 ```
 
-The engine is open to other rule sets: `crawl` a site once, `runRules` with your own rules and texts, `scoreOf` and `toMarkdown` with your own groups and section scores. [search-auditor](https://github.com/a-bibikov/search-auditor) uses it to put classic SEO and AI search in one report.
+The checks are exported as `rules`, with `collect` for what they request besides the pages (llms.txt, feeds, the home page as each AI agent). The crawl, the scoring and the report come from [auditor-engine](https://github.com/a-bibikov/auditor-engine), for your own rule set.
 
 ## GitHub Action
 
@@ -160,7 +164,6 @@ The engine is open to other rule sets: `crawl` a site once, `runRules` with your
     fail-on: error
     lang: en
     pages: all
-    seo: true
 ```
 
 The report goes to the job summary.

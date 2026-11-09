@@ -49,7 +49,7 @@ describe("report language", () => {
     const md = toMarkdown(r);
     assert.match(md, /^# AI search audit:/);
     assert.match(md, /H1 reads as «AdaEngineer»/);
-    assert.match(md, /\*\*Fix:\*\*/);
+    assert.match(md, /## Recommendations\n\n\| Check +\| Severity +\| What to do +\| Comment +\|/);
   });
 
   it("writes titles, fixes and messages in Russian with lang: ru", async () => {
@@ -58,8 +58,8 @@ describe("report language", () => {
     assert.match(md, /^# Проверка для AI-поиска:/);
     assert.match(md, /ошибок: \d+ · предупреждений: \d+/);
     assert.match(md, /H1 читается как «AdaEngineer»/);
-    assert.match(md, /## ⚠ B-3 Заголовки не склеивают слова/);
-    assert.match(md, /\*\*Как исправить:\*\*/);
-    assert.doesNotMatch(md, /H1 reads as|Fix:|Passed/);
+    assert.match(md, /## Рекомендации/);
+    assert.match(md, /\| B-3 +\| ⚠ предупреждение \| \*\*Поставьте пробел между частями заголовка\.\*\*/);
+    assert.doesNotMatch(md, /H1 reads as|What to do|Passed/);
   });
 });

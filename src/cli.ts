@@ -1,8 +1,7 @@
 #!/usr/bin/env node
 import { existsSync, readFileSync, writeFileSync, appendFileSync } from "node:fs";
 import { parseArgs } from "node:util";
-import { DEFAULT_LANG, LANGS, audit, isLang, parsePages, rules, toMarkdown, type Config, type Report } from "./index.ts";
-import { SEO_PACKAGE, loadSeo } from "./seo.ts";
+import { DEFAULT_LANG, LANGS, audit, isLang, parsePages, rules, toJSON, toMarkdown, type Config, type Report } from "./index.ts";
 
 // package.json sits one level up both from src/cli.ts (development) and dist/cli.js (published package).
 const { version } = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8")) as { version: string };
@@ -19,10 +18,9 @@ Usage:
 Options:
   --base <url>        public origin when auditing a local build (links in sitemap point there)
   --pages <n|all>     pages to audit: a number sampled across templates (default 20), or all pages in the sitemap
-  --seo               also run the classic SEO checks of search-auditor: one crawl, one report
-  --max-links <n>     with --seo: internal links to request (default 100)
   --fail-on <level>   exit 1 on: error (default), warn, never
   --lang <lang>       report language: ${Object.keys(LANGS).join(", ")} (default ${DEFAULT_LANG})
+  --width <n>         fit tables into n characters (default: the terminal width; 0 — no wrapping)
   --json              print the JSON report instead of Markdown
   --out <file>        also write the report to a file (.json or .md)
   --config <file>     config file (default: ai-search-audit.config.json if present)
@@ -33,8 +31,15 @@ Examples:
   npx ai-search-auditor https://example.com
   npx ai-search-auditor http://127.0.0.1:3000 --base https://example.com --fail-on warn
   npx ai-search-auditor https://example.com --lang ru --pages all
-  npx -p ai-search-auditor -p search-auditor ai-search-auditor https://example.com --seo
+
+Classic SEO checks: npx search-auditor <url>
 `;
+
+// --seo ran the checks of search-auditor in this report; they now live only there, with a report of their own.
+if (process.argv.includes("--seo")) {
+  process.stderr.write("ai-search-auditor: --seo is gone: classic SEO checks run with their own report, npx search-auditor <url>\n");
+  process.exit(2);
+}
 
 // An unknown or malformed flag gets one line with the help hint, not a stack trace.
 let parsed;
@@ -46,11 +51,10 @@ try {
     pages: { type: "string" },
     // The old name of --pages, kept so existing scripts and workflows keep working.
     "max-pages": { type: "string" },
-    seo: { type: "boolean", default: false },
-    "max-links": { type: "string" },
     "fail-on": { type: "string", default: "error" },
     lang: { type: "string" },
     json: { type: "boolean", default: false },
+    width: { type: "string" },
     out: { type: "string" },
     config: { type: "string" },
     help: { type: "boolean", short: "h", default: false },
@@ -98,32 +102,22 @@ const config: Partial<Config> = {
   ...(llmsOnly ? { maxPages: 3, disable: rules.map((r) => r.id).filter((id) => !id.startsWith("E-") && id !== "G-1") } : {}),
 };
 
-if (values.seo && llmsOnly) fail("--seo does not combine with llms-txt");
-const maxLinks = values["max-links"] === undefined ? undefined : parsePages(values["max-links"]);
-if (maxLinks === null || maxLinks === "all") fail(`--max-links must be a whole number above 0, got «${values["max-links"]}»`);
-if (maxLinks && !values.seo) fail("--max-links works only with --seo");
-
-// --seo hands the whole run to search-auditor: it crawls once and runs its SEO checks and these AI checks.
-const seo = values.seo ? await loadSeo() : null;
-if (values.seo && !seo)
-  fail(
-    `--seo needs the ${SEO_PACKAGE} package. Install it next to this one (npm i -D ${SEO_PACKAGE}) ` +
-      `or run: npx -p ai-search-auditor -p ${SEO_PACKAGE} ai-search-auditor ${target} --seo`,
-  );
-
 const log = (line: string) => process.stderr.write(`· ${line}\n`);
 let report: Report;
 try {
-  report = seo
-    ? await seo.auditSearch(url, { base: values.base, config: { ...config, ...(maxLinks ? { maxLinks } : {}) }, log })
-    : await audit(url, { base: values.base, config, log });
+  report = await audit(url, { base: values.base, config, log });
 } catch (e) {
   fail((e as Error).message);
 }
 const markdown = toMarkdown(report);
+// In a terminal, tables fit the window and long cells wrap; a file and a CI summary keep plain Markdown.
+if (values.width !== undefined && !/^\d+$/.test(values.width)) fail(`--width must be a whole number, got «${values.width}»`);
+const columns = values.width !== undefined ? Number(values.width) : process.stdout.isTTY ? process.stdout.columns : 0;
+const screen = columns > 0 ? toMarkdown(report, { width: columns }) : markdown;
 
-process.stdout.write(values.json ? JSON.stringify(report, null, 2) + "\n" : markdown);
-if (values.out) writeFileSync(values.out, values.out.endsWith(".json") ? JSON.stringify(report, null, 2) : markdown);
+const json = JSON.stringify(toJSON(report), null, 2) + "\n";
+process.stdout.write(values.json ? json : screen);
+if (values.out) writeFileSync(values.out, values.out.endsWith(".json") ? json : markdown);
 if (process.env.GITHUB_STEP_SUMMARY) appendFileSync(process.env.GITHUB_STEP_SUMMARY, markdown);
 
 const failOn = values["fail-on"];

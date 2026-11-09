@@ -28,8 +28,9 @@ describe("checks that do not apply", () => {
     assert.equal(reason("A-5"), "the site has no feed");
     assert.equal(reason("E-1"), undefined, "E-1 still runs and reports the missing file");
     const md = toMarkdown(r);
-    assert.match(md, /- – E-2 .* — not checked: no llms\.txt/);
-    assert.doesNotMatch(md, /- ✓ E-2/);
+    assert.match(md, /\| – +\| E-2 .*\| not checked: no llms\.txt +\|/);
+    assert.doesNotMatch(md, /\| ✓ +\| E-2/);
+    assert.equal(r.rules.find((x) => x.id === "E-2")?.status, "skipped");
     assert.ok(!r.findings.some((f) => ["E-2", "E-3", "E-5", "C-2", "C-4", "D-2", "A-5"].includes(f.rule)));
   });
 
@@ -74,6 +75,7 @@ describe("C-1 on a site that describes itself only on an inner page", () => {
     assert.equal(e1[0]!.level, "info");
     assert.match(e1[0]!.message, /optional/);
     assert.equal(r.score, 90, "only C-1 costs points: a warning on 1 of 2 pages counts as site-wide");
-    assert.doesNotMatch(toMarkdown(r).split("## ")[1] ?? "", /E-1/);
+    const md = toMarkdown(r);
+    assert.doesNotMatch(md.slice(md.indexOf("## What to do first"), md.indexOf("## Checklist")), /E-1/);
   });
 });

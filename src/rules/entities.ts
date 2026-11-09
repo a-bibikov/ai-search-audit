@@ -1,4 +1,4 @@
-import { types } from "../html.ts";
+import { jsonLdTypes as types } from "auditor-engine";
 import type { JsonLdNode, Rule, Site } from "../types.ts";
 import { ENTITY_TYPES, articleNode, finder, isA, isArticle, str } from "./util.ts";
 

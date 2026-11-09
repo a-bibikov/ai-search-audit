@@ -4,6 +4,8 @@
 
 A new check is one rule in `src/rules/` plus its title, fix and messages in every language in `src/i18n/`. It ships with two tests: a site where it must fire and one where it must stay silent (`test/`). `npm test` must pass.
 
+This package checks AI search only; a classic SEO check belongs in [search-auditor](https://github.com/a-bibikov/search-auditor). The crawl, the HTML parser, the scoring and the report live in [auditor-engine](https://github.com/a-bibikov/auditor-engine): a change there is released first, then the `auditor-engine` range here is raised.
+
 ## Branches
 
 All work goes to `dev` through pull requests. The branch name sets the release type:

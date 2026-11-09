@@ -26,14 +26,6 @@ inputs:
   max-pages:
     description: Old name of pages, kept for existing workflows; when set, it is used instead of pages
     required: false
-  seo:
-    description: Also run the classic SEO checks of search-auditor, in the same crawl and report (true or false)
-    required: false
-    default: "false"
-  max-links:
-    description: With seo, internal links to request
-    required: false
-    default: "100"
 runs:
   using: composite
   steps:
@@ -42,13 +34,7 @@ runs:
         node-version: 22
     - shell: bash
       run: |
-        args=("$URL" ${BASE:+--base "$BASE"} --fail-on "$FAIL_ON" --pages "${MAX_PAGES:-$PAGES}" --lang "$LANG_CODE")
-        if [ "$SEO" = "true" ]; then
-          # search-auditor is not a dependency of this package: it runs these AI checks and its SEO checks in one crawl.
-          npx --yes --package "search-auditor@<1" search-auditor "${args[@]}" --max-links "$MAX_LINKS"
-        else
-          node "$GITHUB_ACTION_PATH/src/cli.ts" "${args[@]}"
-        fi
+        node "$GITHUB_ACTION_PATH/src/cli.ts" "$URL" ${BASE:+--base "$BASE"} --fail-on "$FAIL_ON" --pages "${MAX_PAGES:-$PAGES}" --lang "$LANG_CODE"
       env:
         URL: ${{ inputs.url }}
         BASE: ${{ inputs.base }}
@@ -56,5 +42,3 @@ runs:
         PAGES: ${{ inputs.pages }}
         MAX_PAGES: ${{ inputs.max-pages }}
         LANG_CODE: ${{ inputs.lang }}
-        SEO: ${{ inputs.seo }}
-        MAX_LINKS: ${{ inputs.max-links }}
