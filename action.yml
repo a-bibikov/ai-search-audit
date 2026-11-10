@@ -23,6 +23,9 @@ inputs:
     description: Pages to audit, a number sampled across templates or "all" for every page in the sitemap
     required: false
     default: "20"
+  badge:
+    description: Also write a score badge to this file, .svg for a README or .json for a shields.io endpoint
+    required: false
   max-pages:
     description: Old name of pages, kept for existing workflows; when set, it is used instead of pages
     required: false
@@ -34,7 +37,7 @@ runs:
         node-version: 22
     - shell: bash
       run: |
-        node "$GITHUB_ACTION_PATH/src/cli.ts" "$URL" ${BASE:+--base "$BASE"} --fail-on "$FAIL_ON" --pages "${MAX_PAGES:-$PAGES}" --lang "$LANG_CODE"
+        node "$GITHUB_ACTION_PATH/src/cli.ts" "$URL" ${BASE:+--base "$BASE"} --fail-on "$FAIL_ON" --pages "${MAX_PAGES:-$PAGES}" --lang "$LANG_CODE" ${BADGE:+--badge "$BADGE"}
       env:
         URL: ${{ inputs.url }}
         BASE: ${{ inputs.base }}
@@ -42,3 +45,4 @@ runs:
         PAGES: ${{ inputs.pages }}
         MAX_PAGES: ${{ inputs.max-pages }}
         LANG_CODE: ${{ inputs.lang }}
+        BADGE: ${{ inputs.badge }}
