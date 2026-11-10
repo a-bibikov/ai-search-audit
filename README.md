@@ -174,6 +174,7 @@ npx ai-search-auditor https://example.com --json --out report.json
 | `--width <n>` | Fit tables into n characters; long cells wrap inside their column. Default: the terminal width in a terminal, plain Markdown in a file or a pipe; `0` turns wrapping off |
 | `--json` | JSON instead of Markdown: every finding with its check `title`, the `message`, `why` it is a problem and how to `fix` it, and every check with its `status` (`ok`, `error`, `warn`, `info`, `skipped`), `counts`, `pages` (audited pages with a finding) and `addresses` (other addresses with one) |
 | `--out <file>` | Also write the report to a file |
+| `--badge <file>` | Also write a score badge: `.svg` to show in a README, `.json` for a [shields.io endpoint](https://shields.io/badges/endpoint-badge). See [Badge](#badge) |
 | `--config <file>` | Config file (default `ai-search-audit.config.json`) |
 
 Config:
@@ -190,6 +191,26 @@ Config:
 `maxPages`: a number or `"all"`.
 
 `trainingBots`: `allow`, `block` or `any` — whether GPTBot, ClaudeBot, CCBot and others may collect data for training. Blocking them does not remove you from AI search; blocking search agents does.
+
+## Badge
+
+Show your score in your own README:
+
+```bash
+npx ai-search-auditor https://example.com --badge ai-search-badge.svg
+```
+
+The command writes a badge like **AI search | 92/100**, colored by grade (A green … F red), and prints the line to paste:
+
+```md
+[![AI search: 92/100](ai-search-badge.svg)](https://github.com/a-bibikov/ai-search-audit)
+```
+
+To keep the badge current, write it as JSON in CI (`--badge badge.json`), publish the file (GitHub Pages, your site, a gist) and show it through shields.io:
+
+```md
+[![AI search](https://img.shields.io/endpoint?url=https://example.com/badge.json)](https://github.com/a-bibikov/ai-search-audit)
+```
 
 ## Classic SEO
 
@@ -222,9 +243,10 @@ The checks are exported as `rules`, with `collect` for what they request besides
     fail-on: error
     lang: en
     pages: all
+    badge: public/ai-search-badge.json
 ```
 
-The report goes to the job summary.
+The report goes to the job summary. With `badge`, the step also writes the badge file for your site to serve.
 
 ## Example
 
