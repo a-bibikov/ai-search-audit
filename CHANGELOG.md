@@ -1,5 +1,7 @@
 # Changelog
 
+From the next release on, the changes of every version are in [GitHub Releases](https://github.com/a-bibikov/ai-search-audit/releases).
+
 ## [0.6.0](https://github.com/a-bibikov/ai-search-audit/compare/v0.5.0...v0.6.0) (2026-11-09)
 
 
