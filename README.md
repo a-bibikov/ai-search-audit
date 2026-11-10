@@ -1,5 +1,7 @@
 # ai-search-audit
 
+[![npm](https://img.shields.io/npm/v/ai-search-auditor)](https://www.npmjs.com/package/ai-search-auditor) [![GitHub stars](https://img.shields.io/github/stars/a-bibikov/ai-search-audit?style=social)](https://github.com/a-bibikov/ai-search-audit)
+
 **Can ChatGPT, Claude and Perplexity read, understand and cite your site?** One command checks what AI search actually sees: whether AI agents are let in, the text without JavaScript, who stands behind the site in JSON-LD, whether the answer sits where it gets quoted, `llms.txt`, freshness, and content that answer engines treat as prompt injection. 56 checks, each with what it costs and how to fix it.
 
 ```bash
@@ -8,7 +10,9 @@ npx ai-search-auditor https://example.com
 
 ![The report for albibikov.com before the fixes: the score, what to do first and the first group of the checklist](docs/report.png)
 
-No sign-up, no API keys, no dependencies. Node.js 22.18+.
+No sign-up, no API keys. Node.js 22.18+.
+
+If it saved you time, a ⭐ on [GitHub](https://github.com/a-bibikov/ai-search-audit) helps other people find it.
 
 The npm package is `ai-search-auditor`; once installed (`npm i -g ai-search-auditor`), the command is also available as `ai-search-audit`.
 
