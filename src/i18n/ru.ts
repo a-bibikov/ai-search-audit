@@ -212,6 +212,12 @@ export const ru: Messages = {
       fix: "Поставьте ссылки на страницу «Обо мне» или резюме и на контакты (хотя бы ссылку на почту или телефон). Прежде чем опираться на сайт, AI-поиск проверяет, кто за ним стоит.",
       impact: "Сайт выглядит анонимным, а анонимные источники цитируют реже.",
     },
+    "ENT-13": {
+      title: "sameAs ведёт на профили, а не на саму сеть",
+      todo: "Укажите в sameAs свои профили",
+      fix: "Каждое значение `sameAs` — полный адрес собственного профиля человека или компании: `https://github.com/ada`, `https://www.linkedin.com/in/ada`, элемент Wikidata. Не `https://github.com/`, не имя вроде `@ada` и не ваш сайт: он указывается в `url`.",
+      impact: "Ссылка на главную соцсети или на сам сайт ни с чем не связывает сущность, и модель не может подтвердить, кто это.",
+    },
     "ANS-1": {
       title: "Статьи отвечают в первых двух абзацах",
       todo: "Начните статью с ответа, а не со вступления",
@@ -449,6 +455,10 @@ export const ru: Messages = {
     h1Reads: (q: string) => `H1 читается как ${q}`,
     noEntity: "Ни на одной проверенной странице нет Person или Organization с name и url в JSON-LD",
     noId: (type: string, name: string) => `у ${type} «${name}» нет @id: статьи не могут сослаться на него как на одну сущность`,
+    sameAsNotUrl: (who: string, value: string) => `sameAs у ${who} — не полный адрес: ${value}`,
+    sameAsRoot: (who: string, url: string) => `sameAs у ${who} ведёт на ${url}: это сама сеть, а не профиль`,
+    sameAsSelf: (who: string, url: string) => `sameAs у ${who} ведёт на сам сайт: ${url}`,
+    skipNoSameAs: "в разметке нет sameAs",
     noSameAs: (type: string, name: string) => `у ${type} «${name}» нет sameAs (LinkedIn, GitHub…): модели не могут подтвердить, кто это`,
     noJobTitle: (name: string) => `у Person «${name}» нет jobTitle: модели не знают, чем он занимается`,
     closedBy: (signal: string) => `закрыта от AI-поиска: ${signal}`,
