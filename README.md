@@ -105,7 +105,7 @@ The report opens with what to do first — the three changes worth the most, in 
 ```
 ### ENT. Entities: who runs the site and who wrote it
 
-4 of 9 OK · 3 not checked
+5 of 10 OK · 3 not checked
 
 |     | Check                                                                                | Result                                           |
 |-----|--------------------------------------------------------------------------------------|--------------------------------------------------|
@@ -121,6 +121,7 @@ The report opens with what to do first — the three changes worth the most, in 
 | –   | ENT-10 Structured data says the same as the visible text                             | not checked: no FAQPage or Product in the markup |
 | ✓   | ENT-11 One entity has one name on every page                                         | OK                                               |
 | ✓   | ENT-12 The site has an about page and contacts                                       | OK                                               |
+| ✓   | ENT-13 sameAs points at profiles, not at the network itself                          | OK                                               |
 ```
 
 With `--json`, every finding reads on its own: what the check is, what was found, why it is a problem and how to fix it.
@@ -208,6 +209,16 @@ To keep the badge current, write it as JSON in CI (`--badge badge.json`), publis
 [![AI search](https://img.shields.io/endpoint?url=https://example.com/badge.json)](https://github.com/a-bibikov/ai-search-audit)
 ```
 
+## In Claude Code
+
+The [site-audit](https://github.com/a-bibikov/claude-plugins/tree/main/plugins/site-audit) plugin runs this audit from Claude Code and points each finding at the file in your project it comes from. It only reports: the fixes stay with you.
+
+```
+/plugin marketplace add a-bibikov/claude-plugins
+/plugin install site-audit@albibikov
+/site-audit:geo https://example.com
+```
+
 ## Classic SEO
 
 This package checks only AI search. Status codes, canonical, sitemap, titles, headings, broken links, hreflang and HTTPS are checked by [search-auditor](https://github.com/a-bibikov/search-auditor). Both run on [auditor-engine](https://github.com/a-bibikov/auditor-engine), so the reports look the same:
@@ -246,7 +257,7 @@ The report goes to the job summary. With `badge`, the step also writes the badge
 
 ## Example
 
-[albibikov.com](https://albibikov.com), a Next.js site in English and Russian, before and after one round of fixes (20 pages, local production build, all 56 checks):
+[albibikov.com](https://albibikov.com), a Next.js site in English and Russian, before and after one round of fixes (20 pages, local production build, the 56 checks of version 0.6):
 
 | | Before | After |
 |---|---|---|
@@ -296,9 +307,9 @@ Each check ships with tests on a site where it must fire and one where it must s
 - **TXT-10** Images have alt text and captions; data is not locked inside pictures
 
 **ENT. Entities: who runs the site and who wrote it**
-- **ENT-13** Author profiles linked from the site are alive and link back
-- **ENT-14** The company or author is known to Wikidata
-- **ENT-15** Authors have their own page with their experience
+- **ENT-14** Author profiles linked from the site are alive and link back
+- **ENT-15** The company or author is known to Wikidata
+- **ENT-16** Authors have their own page with their experience
 
 **LLM. llms.txt: the site for models and agents**
 - **LLM-9** New pages are announced to search engines as they appear (IndexNow; ChatGPT search relies on Bing)
@@ -313,7 +324,7 @@ Each check ships with tests on a site where it must fire and one where it must s
 - **Site profiles:** blog, shop, SaaS, local business — each gets only the checks that matter for it
 - **CI that reports only new problems,** with a file of accepted exceptions
 - **SARIF output,** so findings show up in GitHub code scanning
-- **Fixes for your stack:** ready snippets for Next.js, WordPress, Astro; a Claude Code skill and an MCP server that apply them
+- **Fixes for your stack:** ready snippets for Next.js, WordPress, Astro
 - **Online version** with no install at [albibikov.com/tools/ai-search-audit](https://albibikov.com/tools/ai-search-audit)
 - **HTML report** to share with people who do not read Markdown
 - **More report languages:** see below
