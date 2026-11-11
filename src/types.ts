@@ -3,8 +3,8 @@ import type { Messages } from "./i18n/index.ts";
 
 export type { Fetched, Finding, JsonLdNode, Level, Page, Robots, Sitemap } from "auditor-engine";
 
-/** BOT: access for AI agents, TXT: text without JS, ENT: entities, ANS: answer first, LLM: llms.txt, UPD: freshness, SAF: content safety. */
-export type Group = "BOT" | "TXT" | "ENT" | "ANS" | "LLM" | "UPD" | "SAF";
+/** BOT: access for AI agents, TXT: text without JS, ENT: entities, LLM: llms.txt, UPD: freshness, SAF: content safety. */
+export type Group = "BOT" | "TXT" | "ENT" | "LLM" | "UPD" | "SAF";
 
 /** What the AI search checks request on top of the crawl. */
 export interface AiExtras {

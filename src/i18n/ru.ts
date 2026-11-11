@@ -18,7 +18,6 @@ export const ru: Messages = {
       BOT: "Доступ: пускают ли AI-агентов",
       TXT: "Текст без JavaScript: что модель видит в HTML",
       ENT: "Сущности: кто стоит за сайтом и кто автор",
-      ANS: "Ответ в начале: откуда модель берёт цитату",
       LLM: "llms.txt: сайт для моделей и агентов",
       UPD: "Свежесть: совпадают ли даты",
       SAF: "Безопасность: ничего не спрятано от людей и не обращено к AI",
@@ -212,6 +211,7 @@ export const ru: Messages = {
       fix: "Поставьте ссылки на страницу «Обо мне» или резюме и на контакты (хотя бы ссылку на почту или телефон). Прежде чем опираться на сайт, AI-поиск проверяет, кто за ним стоит.",
       impact: "Сайт выглядит анонимным, а анонимные источники цитируют реже.",
     },
+<<<<<<< Updated upstream
     "ANS-1": {
       title: "Статьи отвечают в первых двух абзацах",
       todo: "Начните статью с ответа, а не со вступления",
@@ -253,6 +253,13 @@ export const ru: Messages = {
       todo: "Добавьте в длинные статьи «Вывод» или «Коротко»",
       fix: "Закончите статью длиннее 800 слов коротким выводом под заголовком вроде «Вывод» или «Главное» или начните её с «Коротко». Этот абзац модель цитирует, когда её просят пересказать суть.",
       impact: "Модель собирает суть сама и может ошибиться.",
+=======
+    "ENT-13": {
+      title: "sameAs ведёт на профили, а не на саму сеть",
+      todo: "Укажите в sameAs свои профили",
+      fix: "Каждое значение `sameAs` — полный адрес собственного профиля человека или компании: `https://github.com/ada`, `https://www.linkedin.com/in/ada`, элемент Wikidata. Не `https://github.com/`, не имя вроде `@ada` и не ваш сайт: он указывается в `url`.",
+      impact: "Ссылка на главную соцсети или на сам сайт ни с чем не связывает сущность, и модель не может подтвердить, кто это.",
+>>>>>>> Stashed changes
     },
     "LLM-1": {
       title: "llms.txt соответствует llmstxt.org (необязательно)",
@@ -401,14 +408,6 @@ export const ru: Messages = {
     skipNoOrganization: "в разметке нет Organization",
     skipNoProducts: "в разметке нет Product",
     skipNoFaqOrProducts: "в разметке нет FAQPage и Product",
-    queryMissing: (h: string, words: string) => `в первых абзацах нет слов из заголовка ${h}: ${words}`,
-    dateHidden: (date: string) => `даты публикации ${date} из разметки нет на странице`,
-    dateMismatch: (shown: string, markup: string) => `на странице ${shown}, в разметке ${markup}: они должны совпадать`,
-    fewSubheadings: (n: number, h2: number, min: number) => `${words(n)} и заголовков H2: ${h2}, нужно не меньше ${min}`,
-    noLists: (n: number) => `${words(n)} без единого списка и таблицы`,
-    figuresNoSources: (n: number) => `цифр: ${n}, и ни одной ссылки на источник`,
-    sectionsLeanBack: (n: number, h: string, q: string) => `разделов, которые ссылаются на предыдущий: ${n}, например ${h}: ${q}`,
-    noConclusion: (n: number) => `${words(n)} без вывода и «Коротко»`,
     noMarkdown: (n: number) => `ни у одной из ${n} проверенных страниц нет Markdown-версии`,
     markdownIsHtml: (url: string) => `объявленная Markdown-версия ${url} отдаёт HTML`,
     markdownBroken: (url: string, status: string) => `объявленная Markdown-версия ${url} отвечает ${status}`,
@@ -459,8 +458,6 @@ export const ru: Messages = {
     noOg: (tags: string) => `нет ${tags}`,
     faqDetails: (n: number) => `элементов <details>: ${n}, FAQPage нет — проверьте вручную, FAQ ли это`,
     faqQuestions: (n: number) => `заголовков с «?» на конце: ${n}, FAQPage нет — проверьте вручную, FAQ ли это`,
-    introFirst: (q: string) => `начинается со вступления, а не с ответа: ${q}`,
-    noLongParagraph: "среди первых двух абзацев нет абзаца от 25 слов",
     notFound: (path: string) => `${path} не найден`,
     skipNoArticles: "среди проверенных страниц нет статей",
     skipNoLlms: "нет llms.txt — он необязателен",

@@ -13,7 +13,6 @@ export const en = {
       BOT: "Access: are AI agents let in",
       TXT: "Text without JavaScript: what a model reads in the HTML",
       ENT: "Entities: who runs the site and who wrote it",
-      ANS: "Answer first: where a model takes its quote from",
       LLM: "llms.txt: the site for models and agents",
       UPD: "Freshness: do the dates agree",
       SAF: "Content safety: nothing hidden from people or aimed at AI",
@@ -207,6 +206,7 @@ export const en = {
       fix: "Link an about or CV page and a contacts page (or at least an e-mail or phone link) from the site. Answer engines check who stands behind a site before they rely on it.",
       impact: "The site looks anonymous, and anonymous sources are cited less.",
     },
+<<<<<<< Updated upstream
     "ANS-1": {
       title: "Articles answer in the first two paragraphs",
       todo: "Start the article with the answer, not an introduction",
@@ -248,6 +248,13 @@ export const en = {
       todo: "Add a «Conclusion» or «TL;DR» to long articles",
       fix: "End an article over 800 words with a short conclusion under a heading like «Conclusion» or «Key takeaways», or open it with a TL;DR. It is the paragraph a model quotes when asked for the gist.",
       impact: "A model assembles the gist itself, and may get it wrong.",
+=======
+    "ENT-13": {
+      title: "sameAs points at profiles, not at the network itself",
+      todo: "Point sameAs at your own profiles",
+      fix: "Make every `sameAs` value a full address of the person's or company's own profile: `https://github.com/ada`, `https://www.linkedin.com/in/ada`, a Wikidata item. Not `https://github.com/`, not a bare name like `@ada`, and not your own site: that goes in `url`.",
+      impact: "A link to a network's home page or to the site itself connects the entity to nothing, so a model cannot confirm who this is.",
+>>>>>>> Stashed changes
     },
     "LLM-1": {
       title: "llms.txt follows llmstxt.org (optional)",
@@ -397,14 +404,6 @@ export const en = {
     skipNoOrganization: "no Organization in the markup",
     skipNoProducts: "no Product in the markup",
     skipNoFaqOrProducts: "no FAQPage or Product in the markup",
-    queryMissing: (h: string, words: string) => `the first paragraphs do not use the words of the heading ${h}: ${words}`,
-    dateHidden: (date: string) => `the publication date ${date} from the markup is not on the page`,
-    dateMismatch: (shown: string, markup: string) => `the page shows ${shown}, the markup says ${markup}: they should match`,
-    fewSubheadings: (words: number, n: number, min: number) => `${words} words and ${n} H2 headings, should be at least ${min}`,
-    noLists: (words: number) => `${words} words without a list or a table`,
-    figuresNoSources: (n: number) => `${n} figures and not one link to a source`,
-    sectionsLeanBack: (n: number, h: string, q: string) => `${n} ${n === 1 ? "section starts" : "sections start"} by pointing back, for example ${h}: ${q}`,
-    noConclusion: (words: number) => `${words} words without a conclusion or a TL;DR`,
     noMarkdown: (n: number) => `none of ${n} sampled pages has a Markdown version`,
     markdownIsHtml: (url: string) => `the declared Markdown version ${url} serves HTML`,
     markdownBroken: (url: string, status: string) => `the declared Markdown version ${url} answers ${status}`,
@@ -455,8 +454,6 @@ export const en = {
     noOg: (tags: string) => `no ${tags}`,
     faqDetails: (n: number) => `${n} <details> and no FAQPage — check by hand whether this is an FAQ`,
     faqQuestions: (n: number) => `${n} headings ending with «?» and no FAQPage — check by hand whether this is an FAQ`,
-    introFirst: (q: string) => `starts with an intro instead of the answer: ${q}`,
-    noLongParagraph: "no paragraph of 25+ words among the first two",
     notFound: (path: string) => `${path} not found`,
     skipNoArticles: "no articles among the audited pages",
     skipNoLlms: "no llms.txt — it is optional",
