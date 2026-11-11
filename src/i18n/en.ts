@@ -212,48 +212,6 @@ export const en = {
       fix: "Make every `sameAs` value a full address of the person's or company's own profile: `https://github.com/ada`, `https://www.linkedin.com/in/ada`, a Wikidata item. Not `https://github.com/`, not a bare name like `@ada`, and not your own site: that goes in `url`.",
       impact: "A link to a network's home page or to the site itself connects the entity to nothing, so a model cannot confirm who this is.",
     },
-    "ANS-1": {
-      title: "Articles answer in the first two paragraphs",
-      todo: "Start the article with the answer, not an introduction",
-      fix: "Open with the answer: what it is, for whom, the main conclusion, in 25+ words. Answer engines quote the first paragraphs most often; an intro like «In this article we will…» wastes them.",
-      impact: "The answer is buried below the intro, while AI search quotes the opening.",
-    },
-    "ANS-2": {
-      title: "The first paragraphs name the topic of the article",
-      todo: "Repeat the words of the heading in the first paragraph",
-      fix: "Say in the first paragraph, in the words of the H1, what the article is about: «Spec-driven development is…». An answer engine matches the question with the opening of the page; a lead that talks around the topic does not match.",
-      impact: "The opening does not match the question, and the article is not chosen as the answer.",
-    },
-    "ANS-3": {
-      title: "The publication date is visible and matches the markup",
-      todo: "Show the publication date next to the heading",
-      fix: "Show the publication date on the page, ideally in `<time datetime=\"2026-10-01\">`, and keep it the same as `datePublished` in the markup. A model weighs fresh sources higher and checks the date it can see against the one in the markup.",
-      impact: "AI search cannot tell how fresh the article is, or sees two different dates.",
-    },
-    "ANS-4": {
-      title: "A long article has subheadings, lists or tables",
-      todo: "Split long articles into sections with lists or tables",
-      fix: "Split an article over 600 words into sections with H2 headings, and put steps, options and comparisons into lists and tables. Answer engines quote one section, one list or one row of a table, not a wall of text.",
-      impact: "There is no compact part to quote, so the article is quoted less.",
-    },
-    "ANS-5": {
-      title: "Figures come with their sources",
-      todo: "Link the sources of the figures in the article",
-      fix: "Link the study, report or data each figure comes from, with its date. Answer engines prefer claims they can check, and quote a figure with its source.",
-      impact: "Figures without sources look unreliable and are quoted less.",
-    },
-    "ANS-6": {
-      title: "Each section makes sense on its own",
-      todo: "Start each section with its subject, not with «this»",
-      fix: "Start the first paragraph of each section with what it is about, not with «This», «It» or «As mentioned above». A model often quotes one section: «This cuts costs by half» means nothing without the section before.",
-      impact: "A quoted section does not say what it is about.",
-    },
-    "ANS-7": {
-      title: "A long article ends with a short conclusion",
-      todo: "Add a «Conclusion» or «TL;DR» to long articles",
-      fix: "End an article over 800 words with a short conclusion under a heading like «Conclusion» or «Key takeaways», or open it with a TL;DR. It is the paragraph a model quotes when asked for the gist.",
-      impact: "A model assembles the gist itself, and may get it wrong.",
-    },
     "LLM-1": {
       title: "llms.txt follows llmstxt.org (optional)",
       todo: "Add llms.txt if the site serves developers",

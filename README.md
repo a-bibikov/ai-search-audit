@@ -2,7 +2,7 @@
 
 [![npm](https://img.shields.io/npm/v/ai-search-auditor)](https://www.npmjs.com/package/ai-search-auditor) [![GitHub stars](https://img.shields.io/github/stars/a-bibikov/ai-search-audit?style=social)](https://github.com/a-bibikov/ai-search-audit)
 
-**Can ChatGPT, Claude and Perplexity read, understand and cite your site?** One command checks what AI search actually sees: whether AI agents are let in, the text without JavaScript, who stands behind the site in JSON-LD, whether the answer sits where it gets quoted, `llms.txt`, freshness, and content that answer engines treat as prompt injection. 56 checks, each with what it costs and how to fix it.
+**Can ChatGPT, Claude and Perplexity read, understand and cite your site?** One command checks what AI search actually sees: whether AI agents are let in, the text without JavaScript, who stands behind the site in JSON-LD, `llms.txt`, freshness, and content that answer engines treat as prompt injection. 50 checks, each with what it costs and how to fix it.
 
 ```bash
 npx ai-search-auditor https://example.com
