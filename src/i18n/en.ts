@@ -207,6 +207,12 @@ export const en = {
       fix: "Link an about or CV page and a contacts page (or at least an e-mail or phone link) from the site. Answer engines check who stands behind a site before they rely on it.",
       impact: "The site looks anonymous, and anonymous sources are cited less.",
     },
+    "ENT-13": {
+      title: "sameAs points at profiles, not at the network itself",
+      todo: "Point sameAs at your own profiles",
+      fix: "Make every `sameAs` value a full address of the person's or company's own profile: `https://github.com/ada`, `https://www.linkedin.com/in/ada`, a Wikidata item. Not `https://github.com/`, not a bare name like `@ada`, and not your own site: that goes in `url`.",
+      impact: "A link to a network's home page or to the site itself connects the entity to nothing, so a model cannot confirm who this is.",
+    },
     "ANS-1": {
       title: "Articles answer in the first two paragraphs",
       todo: "Start the article with the answer, not an introduction",
@@ -445,6 +451,10 @@ export const en = {
     h1Reads: (q: string) => `H1 reads as ${q}`,
     noEntity: "No Person or Organization with name and url in JSON-LD on any audited page",
     noId: (type: string, name: string) => `${type} «${name}» has no @id: articles cannot point at it as one entity`,
+    sameAsNotUrl: (who: string, value: string) => `sameAs of ${who} is not a full address: ${value}`,
+    sameAsRoot: (who: string, url: string) => `sameAs of ${who} points at ${url}: the network, not a profile`,
+    sameAsSelf: (who: string, url: string) => `sameAs of ${who} points at the site itself: ${url}`,
+    skipNoSameAs: "no sameAs in the markup",
     noSameAs: (type: string, name: string) => `${type} «${name}» has no sameAs (LinkedIn, GitHub…): models cannot confirm who this is`,
     noJobTitle: (name: string) => `Person «${name}» has no jobTitle: models do not know what the person does`,
     closedBy: (signal: string) => `closed to AI search: ${signal}`,
