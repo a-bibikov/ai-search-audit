@@ -3,7 +3,7 @@
  * The author or company is one defined entity, articles point at it by @id and carry complete Article markup, every page
  * has a link card, a visible FAQ is marked up as one, the about page is a profile and listings are collections, a
  * company has a logo and contacts, products carry prices, markup says what the page shows, one entity has one name,
- * and the site has about and contact pages.
+ * the site has about and contact pages, and sameAs links lead to profiles.
  */
 import type { Rule } from "../../types.ts";
 import { ent1 } from "./ent-1.ts";
@@ -18,5 +18,6 @@ import { ent9 } from "./ent-9.ts";
 import { ent10 } from "./ent-10.ts";
 import { ent11 } from "./ent-11.ts";
 import { ent12 } from "./ent-12.ts";
+import { ent13 } from "./ent-13.ts";
 
-export const entRules: Rule[] = [ent1, ent2, ent3, ent4, ent5, ent6, ent7, ent8, ent9, ent10, ent11, ent12];
+export const entRules: Rule[] = [ent1, ent2, ent3, ent4, ent5, ent6, ent7, ent8, ent9, ent10, ent11, ent12, ent13];

@@ -1,6 +1,8 @@
 # ai-search-audit
 
-**Can ChatGPT, Claude and Perplexity read, understand and cite your site?** One command checks what AI search actually sees: whether AI agents are let in, the text without JavaScript, who stands behind the site in JSON-LD, whether the answer sits where it gets quoted, `llms.txt`, freshness, and content that answer engines treat as prompt injection. 56 checks, each with what it costs and how to fix it.
+[![npm](https://img.shields.io/npm/v/ai-search-auditor)](https://www.npmjs.com/package/ai-search-auditor) [![GitHub stars](https://img.shields.io/github/stars/a-bibikov/ai-search-audit?style=social)](https://github.com/a-bibikov/ai-search-audit)
+
+**Can ChatGPT, Claude and Perplexity read, understand and cite your site?** One command checks what AI search actually sees: whether AI agents are let in, the text without JavaScript, who stands behind the site in JSON-LD, `llms.txt`, freshness, and content that answer engines treat as prompt injection. 50 checks, each with what it costs and how to fix it.
 
 ```bash
 npx ai-search-auditor https://example.com
@@ -8,7 +10,9 @@ npx ai-search-auditor https://example.com
 
 ![The report for albibikov.com before the fixes: the score, what to do first and the first group of the checklist](docs/report.png)
 
-No sign-up, no API keys, no dependencies. Node.js 22.18+.
+No sign-up, no API keys. Node.js 22.18+.
+
+If it saved you time, a ⭐ on [GitHub](https://github.com/a-bibikov/ai-search-audit) helps other people find it.
 
 The npm package is `ai-search-auditor`; once installed (`npm i -g ai-search-auditor`), the command is also available as `ai-search-audit`.
 
@@ -16,7 +20,7 @@ The npm package is `ai-search-auditor`; once installed (`npm i -g ai-search-audi
 
 People increasingly get answers from ChatGPT, Claude, Perplexity and Google AI Overviews instead of a list of links. An answer engine reads a handful of pages, picks a few sources and cites them. The rest of the web does not exist for that answer.
 
-Whether your site is among those sources depends on things classic SEO tools rarely look at: whether AI agents are let in, whether the text is there without JavaScript, whether the model can tell who the author is, whether the answer sits where it gets quoted. A site can rank well in Google and still be invisible, misread or skipped by AI search. Most of these problems are a few lines of code to fix, once you know they are there.
+Whether your site is among those sources depends on things classic SEO tools rarely look at: whether AI agents are let in, whether the text is there without JavaScript, whether the model can tell who the author is. A site can rank well in Google and still be invisible, misread or skipped by AI search. Most of these problems are a few lines of code to fix, once you know they are there.
 
 ## Why another GEO checker
 
@@ -30,7 +34,7 @@ Most GEO / AI SEO checkers score a checklist: "is there an FAQ?", "are AI bots n
 
 ## What it checks
 
-56 checks in seven groups.
+50 checks in six groups.
 
 **BOT. Access: are AI agents let in**
 - **BOT-1** AI search bots — OAI-SearchBot, Claude-SearchBot, PerplexityBot, Googlebot, Bingbot, Applebot and others — may read the site
@@ -68,15 +72,7 @@ Most GEO / AI SEO checkers score a checklist: "is there an FAQ?", "are AI bots n
 - **ENT-10** Structured data says the same as the visible text: FAQ questions and prices are on the page
 - **ENT-11** One entity has one name on every page in one language
 - **ENT-12** The site has an about page and contacts
-
-**ANS. Answer first: where a model takes its quote from**
-- **ANS-1** Articles give the answer in the first two paragraphs
-- **ANS-2** The first paragraphs name the topic in the words of the heading
-- **ANS-3** The publication date is visible and matches the markup
-- **ANS-4** A long article has subheadings, and lists or tables to quote
-- **ANS-5** Figures come with links to their sources
-- **ANS-6** Each section makes sense on its own: it does not open with «this» or «as mentioned above»
-- **ANS-7** A long article ends with a short conclusion or opens with a TL;DR
+- **ENT-13** `sameAs` points at your profiles, not at the network itself or at your own site
 
 **LLM. llms.txt: the site for models and agents**
 - **LLM-1** `llms.txt` follows the standard. It is optional: AI search engines rarely read it today, coding agents and docs tools do. Without an `llms.txt` the whole group is «not checked», with the reason, and costs nothing
@@ -109,7 +105,7 @@ The report opens with what to do first — the three changes worth the most, in 
 ```
 ### ENT. Entities: who runs the site and who wrote it
 
-4 of 9 OK · 3 not checked
+5 of 10 OK · 3 not checked
 
 |     | Check                                                                                | Result                                           |
 |-----|--------------------------------------------------------------------------------------|--------------------------------------------------|
@@ -125,6 +121,7 @@ The report opens with what to do first — the three changes worth the most, in 
 | –   | ENT-10 Structured data says the same as the visible text                             | not checked: no FAQPage or Product in the markup |
 | ✓   | ENT-11 One entity has one name on every page                                         | OK                                               |
 | ✓   | ENT-12 The site has an about page and contacts                                       | OK                                               |
+| ✓   | ENT-13 sameAs points at profiles, not at the network itself                          | OK                                               |
 ```
 
 With `--json`, every finding reads on its own: what the check is, what was found, why it is a problem and how to fix it.
@@ -212,6 +209,16 @@ To keep the badge current, write it as JSON in CI (`--badge badge.json`), publis
 [![AI search](https://img.shields.io/endpoint?url=https://example.com/badge.json)](https://github.com/a-bibikov/ai-search-audit)
 ```
 
+## In Claude Code
+
+The [site-audit](https://github.com/a-bibikov/claude-plugins/tree/main/plugins/site-audit) plugin runs this audit from Claude Code and points each finding at the file in your project it comes from. It only reports: the fixes stay with you.
+
+```
+/plugin marketplace add a-bibikov/claude-plugins
+/plugin install site-audit@albibikov
+/site-audit:geo https://example.com
+```
+
 ## Classic SEO
 
 This package checks only AI search. Status codes, canonical, sitemap, titles, headings, broken links, hreflang and HTTPS are checked by [search-auditor](https://github.com/a-bibikov/search-auditor). Both run on [auditor-engine](https://github.com/a-bibikov/auditor-engine), so the reports look the same:
@@ -250,7 +257,7 @@ The report goes to the job summary. With `badge`, the step also writes the badge
 
 ## Example
 
-[albibikov.com](https://albibikov.com), a Next.js site in English and Russian, before and after one round of fixes (20 pages, local production build, all 56 checks):
+[albibikov.com](https://albibikov.com), a Next.js site in English and Russian, before and after one round of fixes (20 pages, local production build, the 56 checks of version 0.6):
 
 | | Before | After |
 |---|---|---|
@@ -300,9 +307,9 @@ Each check ships with tests on a site where it must fire and one where it must s
 - **TXT-10** Images have alt text and captions; data is not locked inside pictures
 
 **ENT. Entities: who runs the site and who wrote it**
-- **ENT-13** Author profiles linked from the site are alive and link back
-- **ENT-14** The company or author is known to Wikidata
-- **ENT-15** Authors have their own page with their experience
+- **ENT-14** Author profiles linked from the site are alive and link back
+- **ENT-15** The company or author is known to Wikidata
+- **ENT-16** Authors have their own page with their experience
 
 **LLM. llms.txt: the site for models and agents**
 - **LLM-9** New pages are announced to search engines as they appear (IndexNow; ChatGPT search relies on Bing)
@@ -317,7 +324,7 @@ Each check ships with tests on a site where it must fire and one where it must s
 - **Site profiles:** blog, shop, SaaS, local business — each gets only the checks that matter for it
 - **CI that reports only new problems,** with a file of accepted exceptions
 - **SARIF output,** so findings show up in GitHub code scanning
-- **Fixes for your stack:** ready snippets for Next.js, WordPress, Astro; a Claude Code skill and an MCP server that apply them
+- **Fixes for your stack:** ready snippets for Next.js, WordPress, Astro
 - **Online version** with no install at [albibikov.com/tools/ai-search-audit](https://albibikov.com/tools/ai-search-audit)
 - **HTML report** to share with people who do not read Markdown
 - **More report languages:** see below

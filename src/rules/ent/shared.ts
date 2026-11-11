@@ -44,5 +44,9 @@ export const nodesOf = (site: Site, list: string[]) => site.pages.flatMap((page)
 /** A value or list of values as a list. */
 export const listOf = (v: unknown): unknown[] => (Array.isArray(v) ? v : v === undefined || v === null ? [] : [v]);
 
-/** Text for comparing what markup says with what the page shows: no case, no spaces, no separators of thousands. */
-export const squash = (s: string) => s.toLowerCase().replace(/[\s  '’.,]/g, "");
+/**
+ * Text for comparing what markup says with what the page shows: letters and digits only, no case, ё as е. Spaces,
+ * punctuation, separators of thousands and the invisible characters typography plugins insert (U+00AD, U+2060,
+ * zero-width spaces) do not make the same question or price look different.
+ */
+export const squash = (s: string) => s.normalize("NFKC").toLowerCase().replace(/ё/g, "е").replace(/[^\p{L}\p{N}]/gu, "");

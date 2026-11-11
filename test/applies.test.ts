@@ -23,13 +23,13 @@ describe("checks that do not apply", () => {
     // The whole group E waits for an llms.txt, and the reason says what the server answered.
     for (let i = 1; i <= 8; i++) assert.equal(reason(`LLM-${i}`), "/llms.txt answers HTTP 403", `LLM-${i}`);
     assert.equal(reason("ENT-2"), "no articles among the audited pages");
-    assert.equal(reason("ANS-1"), "no articles among the audited pages");
+    assert.equal(reason("ENT-3"), "no articles among the audited pages");
     assert.equal(reason("BOT-5"), "the site has no feed");
     const md = toMarkdown(r);
     assert.match(md, /\| – +\| LLM-2 .*\| not checked: \/llms\.txt answers HTTP 403 +\|/);
     assert.doesNotMatch(md, /\| ✓ +\| LLM-2/);
     assert.equal(r.rules.find((x) => x.id === "LLM-2")?.status, "skipped");
-    assert.ok(!r.findings.some((f) => ["LLM-1", "LLM-2", "LLM-3", "LLM-4", "LLM-5", "LLM-6", "LLM-7", "LLM-8", "ENT-2", "ENT-3", "ANS-1", "BOT-5"].includes(f.rule)));
+    assert.ok(!r.findings.some((f) => ["LLM-1", "LLM-2", "LLM-3", "LLM-4", "LLM-5", "LLM-6", "LLM-7", "LLM-8", "ENT-2", "ENT-3", "BOT-5"].includes(f.rule)));
   });
 
   it("says in the report language why group E did not run", async () => {
