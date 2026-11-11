@@ -35,6 +35,10 @@ runs:
     - uses: actions/setup-node@v4
       with:
         node-version: 22
+    # The action runs from its own checkout, which has no node_modules: install what the CLI imports (auditor-engine).
+    - shell: bash
+      working-directory: ${{ github.action_path }}
+      run: npm ci --omit=dev --ignore-scripts --no-audit --no-fund
     - shell: bash
       run: |
         node "$GITHUB_ACTION_PATH/src/cli.ts" "$URL" ${BASE:+--base "$BASE"} --fail-on "$FAIL_ON" --pages "${MAX_PAGES:-$PAGES}" --lang "$LANG_CODE" ${BADGE:+--badge "$BADGE"}
