@@ -2,11 +2,7 @@
 
 [![npm](https://img.shields.io/npm/v/ai-search-auditor)](https://www.npmjs.com/package/ai-search-auditor) [![GitHub stars](https://img.shields.io/github/stars/a-bibikov/ai-search-audit?style=social)](https://github.com/a-bibikov/ai-search-audit)
 
-<<<<<<< Updated upstream
 **Can ChatGPT, Claude and Perplexity read, understand and cite your site?** One command checks what AI search actually sees: whether AI agents are let in, the text without JavaScript, who stands behind the site in JSON-LD, whether the answer sits where it gets quoted, `llms.txt`, freshness, and content that answer engines treat as prompt injection. 56 checks, each with what it costs and how to fix it.
-=======
-**Can ChatGPT, Claude and Perplexity read, understand and cite your site?** One command checks what AI search actually sees: whether AI agents are let in, the text without JavaScript, who stands behind the site in JSON-LD, `llms.txt`, freshness, and content that answer engines treat as prompt injection. 50 checks, each with what it costs and how to fix it.
->>>>>>> Stashed changes
 
 ```bash
 npx ai-search-auditor https://example.com
@@ -38,11 +34,7 @@ Most GEO / AI SEO checkers score a checklist: "is there an FAQ?", "are AI bots n
 
 ## What it checks
 
-<<<<<<< Updated upstream
-56 checks in seven groups.
-=======
 50 checks in six groups.
->>>>>>> Stashed changes
 
 **BOT. Access: are AI agents let in**
 - **BOT-1** AI search bots — OAI-SearchBot, Claude-SearchBot, PerplexityBot, Googlebot, Bingbot, Applebot and others — may read the site
@@ -80,6 +72,7 @@ Most GEO / AI SEO checkers score a checklist: "is there an FAQ?", "are AI bots n
 - **ENT-10** Structured data says the same as the visible text: FAQ questions and prices are on the page
 - **ENT-11** One entity has one name on every page in one language
 - **ENT-12** The site has an about page and contacts
+- **ENT-13** `sameAs` points at your profiles, not at the network itself or at your own site
 
 **LLM. llms.txt: the site for models and agents**
 - **LLM-1** `llms.txt` follows the standard. It is optional: AI search engines rarely read it today, coding agents and docs tools do. Without an `llms.txt` the whole group is «not checked», with the reason, and costs nothing

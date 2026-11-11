@@ -67,7 +67,7 @@ const badSite = (origin: string): Routes => ({
       body: `<p>${words(200)}</p><p>© 2021 Ada Example</p><p>Hello\u{E0072}\u{E0065}\u{E0063} reader</p>`,
       jsonLd: [
         { "@context": "https://schema.org", "@type": "Person", "@id": `${origin}/#ada`, name: "Ada Example", url: `${origin}/about`, sameAs: ["https://github.com/ada"], jobTitle: "Engineer" },
-        { "@context": "https://schema.org", "@type": "Organization", "@id": `${origin}/#studio`, name: "Ada Studio", url: `${origin}/`, sameAs: ["https://t.me/ada"] },
+        { "@context": "https://schema.org", "@type": "Organization", "@id": `${origin}/#studio`, name: "Ada Studio", url: `${origin}/`, sameAs: ["https://t.me/ada", "https://github.com/", "@ada_studio", `${origin}/`] },
       ],
     }),
   },
@@ -173,7 +173,11 @@ describe("audit", () => {
     assert.ok(r.findings.some((f) => f.rule === "ENT-10" && f.message.includes("1990")));
     assert.ok(r.findings.some((f) => f.rule === "ENT-11" && f.message.includes("«Ada Example», «Ada E.»")));
     assert.ok(r.findings.some((f) => f.rule === "ENT-12" && f.message.startsWith("no contacts")));
-<<<<<<< Updated upstream
+    const sameAs = r.findings.filter((x) => x.rule === "ENT-13").map((x) => x.message);
+    assert.ok(sameAs.includes("sameAs of Organization «Ada Studio» points at https://github.com/: the network, not a profile"), sameAs.join("\n"));
+    assert.ok(sameAs.includes("sameAs of Organization «Ada Studio» is not a full address: @ada_studio"), sameAs.join("\n"));
+    assert.ok(sameAs.some((m) => m.startsWith("sameAs of Organization «Ada Studio» points at the site itself")), sameAs.join("\n"));
+    assert.ok(!sameAs.some((m) => m.includes("t.me/ada")), "a profile stays silent");
     const specs = (rule: string) => r.findings.find((f) => f.rule === rule && f.where.endsWith("/blog/specs"));
     assert.match(specs("ANS-2")!.message, /«Spec driven development pipelines»: spec, driven, development, pipelines$/);
     assert.equal(specs("ANS-3")!.message, "the page shows 2025-01-01, the markup says 2026-10-02: they should match");
@@ -181,13 +185,6 @@ describe("audit", () => {
     assert.equal(specs("ANS-5")!.message, "3 figures and not one link to a source");
     assert.match(specs("ANS-6")!.message, /^1 section starts by pointing back, for example «What it costs»: «This cuts/);
     assert.match(specs("ANS-7")!.message, /words without a conclusion or a TL;DR$/);
-=======
-    const sameAs = r.findings.filter((x) => x.rule === "ENT-13").map((x) => x.message);
-    assert.ok(sameAs.includes("sameAs of Organization «Ada Studio» points at https://github.com/: the network, not a profile"), sameAs.join("\n"));
-    assert.ok(sameAs.includes("sameAs of Organization «Ada Studio» is not a full address: @ada_studio"), sameAs.join("\n"));
-    assert.ok(sameAs.some((m) => m.startsWith("sameAs of Organization «Ada Studio» points at the site itself")), sameAs.join("\n"));
-    assert.ok(!sameAs.some((m) => m.includes("t.me/ada")), "a profile stays silent");
->>>>>>> Stashed changes
     assert.match(r.findings.find((f) => f.rule === "LLM-5")!.message, /^the declared Markdown version .*\/blog\/glue\.md serves HTML$/);
     assert.ok(r.findings.some((f) => f.rule === "LLM-6" && f.message.includes("OAI-SearchBot")));
     assert.match(r.findings.find((f) => f.rule === "LLM-7")!.message, /^2 of the 2 newest articles are not in llms\.txt, for example .*\/blog\/specs$/);
