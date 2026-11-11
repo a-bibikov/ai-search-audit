@@ -2,7 +2,7 @@
 
 [![npm](https://img.shields.io/npm/v/ai-search-auditor)](https://www.npmjs.com/package/ai-search-auditor) [![GitHub stars](https://img.shields.io/github/stars/a-bibikov/ai-search-audit?style=social)](https://github.com/a-bibikov/ai-search-audit)
 
-**Can ChatGPT, Claude and Perplexity read, understand and cite your site?** One command checks what AI search actually sees: whether AI agents are let in, the text without JavaScript, who stands behind the site in JSON-LD, whether the answer sits where it gets quoted, `llms.txt`, freshness, and content that answer engines treat as prompt injection. 57 checks, each with what it costs and how to fix it.
+**Can ChatGPT, Claude and Perplexity read, understand and cite your site?** One command checks what AI search actually sees: whether AI agents are let in, the text without JavaScript, who stands behind the site in JSON-LD, `llms.txt`, freshness, and content that answer engines treat as prompt injection. 50 checks, each with what it costs and how to fix it.
 
 ```bash
 npx ai-search-auditor https://example.com
@@ -20,7 +20,7 @@ The npm package is `ai-search-auditor`; once installed (`npm i -g ai-search-audi
 
 People increasingly get answers from ChatGPT, Claude, Perplexity and Google AI Overviews instead of a list of links. An answer engine reads a handful of pages, picks a few sources and cites them. The rest of the web does not exist for that answer.
 
-Whether your site is among those sources depends on things classic SEO tools rarely look at: whether AI agents are let in, whether the text is there without JavaScript, whether the model can tell who the author is, whether the answer sits where it gets quoted. A site can rank well in Google and still be invisible, misread or skipped by AI search. Most of these problems are a few lines of code to fix, once you know they are there.
+Whether your site is among those sources depends on things classic SEO tools rarely look at: whether AI agents are let in, whether the text is there without JavaScript, whether the model can tell who the author is. A site can rank well in Google and still be invisible, misread or skipped by AI search. Most of these problems are a few lines of code to fix, once you know they are there.
 
 ## Why another GEO checker
 
@@ -34,7 +34,7 @@ Most GEO / AI SEO checkers score a checklist: "is there an FAQ?", "are AI bots n
 
 ## What it checks
 
-57 checks in seven groups.
+50 checks in six groups.
 
 **BOT. Access: are AI agents let in**
 - **BOT-1** AI search bots — OAI-SearchBot, Claude-SearchBot, PerplexityBot, Googlebot, Bingbot, Applebot and others — may read the site
@@ -73,15 +73,6 @@ Most GEO / AI SEO checkers score a checklist: "is there an FAQ?", "are AI bots n
 - **ENT-11** One entity has one name on every page in one language
 - **ENT-12** The site has an about page and contacts
 - **ENT-13** `sameAs` points at your profiles, not at the network itself or at your own site
-
-**ANS. Answer first: where a model takes its quote from**
-- **ANS-1** Articles give the answer in the first two paragraphs
-- **ANS-2** The first paragraphs name the topic in the words of the heading
-- **ANS-3** The publication date is visible and matches the markup
-- **ANS-4** A long article has subheadings, and lists or tables to quote
-- **ANS-5** Figures come with links to their sources
-- **ANS-6** Each section makes sense on its own: it does not open with «this» or «as mentioned above»
-- **ANS-7** A long article ends with a short conclusion or opens with a TL;DR
 
 **LLM. llms.txt: the site for models and agents**
 - **LLM-1** `llms.txt` follows the standard. It is optional: AI search engines rarely read it today, coding agents and docs tools do. Without an `llms.txt` the whole group is «not checked», with the reason, and costs nothing

@@ -149,7 +149,7 @@ describe("audit", () => {
   it("finds each planted mistake", async () => {
     const r = await audit(bad);
     const ids = new Set(r.findings.filter((f) => f.level !== "info").map((f) => f.rule));
-    for (const id of ["BOT-1", "BOT-3", "BOT-4", "BOT-6", "BOT-7", "BOT-9", "BOT-10", "BOT-11", "TXT-1", "TXT-5", "TXT-6", "TXT-7", "TXT-8", "ENT-6", "ENT-8", "ENT-9", "ENT-10", "ENT-11", "ANS-2", "ANS-3", "LLM-5", "LLM-6", "UPD-2", "UPD-4", "UPD-5", "SAF-2", "SAF-3", "SAF-4", "SAF-5", "TXT-2", "TXT-3", "ENT-1", "ENT-2", "ENT-3", "ENT-4", "ANS-1", "LLM-2", "UPD-1", "SAF-1"]) assert.ok(ids.has(id), `expected ${id}, got ${[...ids].join(", ")}`);
+    for (const id of ["BOT-1", "BOT-3", "BOT-4", "BOT-6", "BOT-7", "BOT-9", "BOT-10", "BOT-11", "TXT-1", "TXT-5", "TXT-6", "TXT-7", "TXT-8", "ENT-6", "ENT-8", "ENT-9", "ENT-10", "ENT-11", "LLM-5", "LLM-6", "UPD-2", "UPD-4", "UPD-5", "SAF-2", "SAF-3", "SAF-4", "SAF-5", "TXT-2", "TXT-3", "ENT-1", "ENT-2", "ENT-3", "ENT-4", "LLM-2", "UPD-1", "SAF-1"]) assert.ok(ids.has(id), `expected ${id}, got ${[...ids].join(", ")}`);
     assert.ok(r.findings.some((f) => f.rule === "TXT-3" && f.message.includes("Ada ExampleI build")));
     assert.ok(r.findings.some((f) => f.rule === "BOT-1" && f.message.startsWith("OAI-SearchBot")));
     assert.ok(r.findings.some((f) => f.rule === "BOT-3" && f.message === "Claude-SearchBot gets a bot check instead of the page"));
@@ -178,13 +178,6 @@ describe("audit", () => {
     assert.ok(sameAs.includes("sameAs of Organization «Ada Studio» is not a full address: @ada_studio"), sameAs.join("\n"));
     assert.ok(sameAs.some((m) => m.startsWith("sameAs of Organization «Ada Studio» points at the site itself")), sameAs.join("\n"));
     assert.ok(!sameAs.some((m) => m.includes("t.me/ada")), "a profile stays silent");
-    const specs = (rule: string) => r.findings.find((f) => f.rule === rule && f.where.endsWith("/blog/specs"));
-    assert.match(specs("ANS-2")!.message, /«Spec driven development pipelines»: spec, driven, development, pipelines$/);
-    assert.equal(specs("ANS-3")!.message, "the page shows 2025-01-01, the markup says 2026-10-02: they should match");
-    assert.match(specs("ANS-4")!.message, /words without a list or a table$/);
-    assert.equal(specs("ANS-5")!.message, "3 figures and not one link to a source");
-    assert.match(specs("ANS-6")!.message, /^1 section starts by pointing back, for example «What it costs»: «This cuts/);
-    assert.match(specs("ANS-7")!.message, /words without a conclusion or a TL;DR$/);
     assert.match(r.findings.find((f) => f.rule === "LLM-5")!.message, /^the declared Markdown version .*\/blog\/glue\.md serves HTML$/);
     assert.ok(r.findings.some((f) => f.rule === "LLM-6" && f.message.includes("OAI-SearchBot")));
     assert.match(r.findings.find((f) => f.rule === "LLM-7")!.message, /^2 of the 2 newest articles are not in llms\.txt, for example .*\/blog\/specs$/);
